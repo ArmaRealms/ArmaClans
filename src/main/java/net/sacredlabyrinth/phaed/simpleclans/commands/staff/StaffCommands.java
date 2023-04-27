@@ -1,7 +1,6 @@
 package net.sacredlabyrinth.phaed.simpleclans.commands.staff;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.InvalidCommandArgument;
 import co.aikar.commands.annotation.*;
 import net.sacredlabyrinth.phaed.simpleclans.*;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanInput;
@@ -332,7 +331,7 @@ public class StaffCommands extends BaseCommand {
             if (player == null) {
                 continue;
             }
-            PlayerResetKdrEvent event = new PlayerResetKdrEvent(player);
+            PlayerResetKdrEvent event = new PlayerResetKdrEvent(player, cp);
             Bukkit.getServer().getPluginManager().callEvent(event);
             if (!event.isCancelled()) {
                 cm.resetKdr(cp);
@@ -351,7 +350,7 @@ public class StaffCommands extends BaseCommand {
         if (player == null) {
             return;
         }
-        PlayerResetKdrEvent event = new PlayerResetKdrEvent(player);
+        PlayerResetKdrEvent event = new PlayerResetKdrEvent(player, cp);
         Bukkit.getServer().getPluginManager().callEvent(event);
         if (!event.isCancelled()) {
             cm.resetKdr(cp);
