@@ -55,7 +55,7 @@ settings:
     lore-length: 36
     past-clans-limit: 10
     username-regex: '(\.|\*){0,1}[a-zA-Z0-9_$]{1,16}'
-    date-format-patter: 'MMM dd, yy h:mm a'
+    date-time-format-pattern: 'HH:mm - dd/MM/yyyy'
 war-and-protection:
     war-enabled: false
     land-sharing: true
