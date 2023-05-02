@@ -145,9 +145,6 @@ public class LandProtection implements Listener {
                 return;
             }
             Player victim = event.getEntity() instanceof Player ? ((Player) event.getEntity()) : null;
-            if (victim == null) {
-                return;
-            }
             if (protectionManager.can(DAMAGE, event.getEntity().getLocation(), attacker, victim)) {
                 event.setCancelled(cancel);
             }

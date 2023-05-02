@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.ui.*;
 import net.sacredlabyrinth.phaed.simpleclans.ui.frames.staff.StaffFrame;
-import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.jetbrains.annotations.NotNull;
@@ -90,9 +89,8 @@ public class MainFrame extends SCFrame {
 	public void addResetKdr() {
 		List<String> resetKrLore;
 		if (plugin.getSettingsManager().is(ECONOMY_PURCHASE_RESET_KDR)) {
-			double price = plugin.getSettingsManager().getDouble(ECONOMY_RESET_KDR_PRICE);
 			resetKrLore = Arrays.asList(
-					lang("gui.main.reset.kdr.lore.price", getViewer(), ChatUtils.formatPrice(price)),
+					lang("gui.main.reset.kdr.lore.price", getViewer(), plugin.getSettingsManager().getString(ECONOMY_RESET_KDR_PRICE)),
 					lang("gui.main.reset.kdr.lore", getViewer()));
 		} else {
 			resetKrLore = Collections.singletonList(lang("gui.main.reset.kdr.lore", getViewer()));

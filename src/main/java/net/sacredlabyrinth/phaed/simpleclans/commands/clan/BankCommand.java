@@ -10,7 +10,6 @@ import net.sacredlabyrinth.phaed.simpleclans.events.BankWithdrawEvent;
 import net.sacredlabyrinth.phaed.simpleclans.loggers.BankLogger;
 import net.sacredlabyrinth.phaed.simpleclans.loggers.BankOperator;
 import net.sacredlabyrinth.phaed.simpleclans.managers.PermissionsManager;
-import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -32,7 +31,7 @@ public class BankCommand extends BaseCommand {
     @Conditions("rank:name=BANK_BALANCE")
     @Description("{@@command.description.bank.status}")
     public void bankStatus(Player player, Clan clan) {
-        player.sendMessage(AQUA + lang("clan.balance", player, clan.getBalanceFormatted()));
+        player.sendMessage(AQUA + lang("clan.balance", player, clan.getBalance()));
     }
 
     @Subcommand("%withdraw %all")
@@ -74,8 +73,8 @@ public class BankCommand extends BaseCommand {
         switch (clan.withdraw(operator, COMMAND, amount)) {
             case SUCCESS:
                 if (permissions.playerGrantMoney(player, amount)) {
-                    player.sendMessage(AQUA + lang("player.clan.withdraw", player, ChatUtils.formatPrice(amount)));
-                    clan.addBb(player.getName(), lang("bb.clan.withdraw", ChatUtils.formatPrice(amount), player.getName()));
+                    player.sendMessage(AQUA + lang("player.clan.withdraw", player, amount));
+                    clan.addBb(player.getName(), lang("bb.clan.withdraw", amount, player.getName()));
                 } else {
                     clan.setBalance(operator, REVERT, BankLogger.Operation.WITHDRAW, clan.getBalance() + amount);
                 }
@@ -124,15 +123,15 @@ public class BankCommand extends BaseCommand {
         */
 
         if (!permissions.playerHasMoney(player, amount)) {
-            player.sendMessage(AQUA + lang("not.sufficient.money", player, ChatUtils.formatPrice(amount)));
+            player.sendMessage(AQUA + lang("not.sufficient.money", player, amount));
             return;
         }
         BankOperator operator = new BankOperator(player, permissions.playerGetMoney(player));
         EconomyResponse response = clan.deposit(operator, COMMAND, amount);
         if (response == EconomyResponse.SUCCESS) {
             if (permissions.playerChargeMoney(player, amount)) {
-                player.sendMessage(AQUA + lang("player.clan.deposit", player, ChatUtils.formatPrice(amount)));
-                clan.addBb(player.getName(), lang("bb.clan.deposit", ChatUtils.formatPrice(amount), player.getName()));
+                player.sendMessage(AQUA + lang("player.clan.deposit", player, amount));
+                clan.addBb(player.getName(), lang("bb.clan.deposit", amount, player.getName()));
             } else {
                 //Reverts the deposit if something went wrong with Vault
                 clan.setBalance(operator, REVERT, BankLogger.Operation.DEPOSIT, clan.getBalance() - amount);
