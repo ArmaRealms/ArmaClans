@@ -1,5 +1,6 @@
 package net.sacredlabyrinth.phaed.simpleclans;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.sacredlabyrinth.phaed.simpleclans.events.*;
@@ -246,6 +247,16 @@ public class Clan implements Serializable, Comparable<Clan> {
     }
 
     /**
+     * Returns the clan's balance formatted
+     *
+     * @return the balance formatted
+     */
+    @Placeholder("balance_formatted")
+    public String getBalanceFormatted() {
+        return ChatUtils.formatPrice(balance);
+    }
+
+    /**
      * (used internally)
      *
      * @param balance the balance to set
@@ -453,7 +464,7 @@ public class Clan implements Serializable, Comparable<Clan> {
      */
     @Placeholder("founded")
     public String getFoundedString() {
-        return new java.text.SimpleDateFormat("MMM dd, ''yy h:mm a").format(new Date(this.founded));
+        return ChatUtils.formatDate(founded);
     }
 
     /**
@@ -1358,12 +1369,13 @@ public class Clan implements Serializable, Comparable<Clan> {
             long time = (System.currentTimeMillis() - Long.parseLong(msg.substring(0, index))) / 1000L;
             msg = ChatUtils.parseColors(bbPrefix + msg.substring(++index));
 
-            TextComponent textComponent = new TextComponent(msg);
-            textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
+            BaseComponent[] baseComponent = TextComponent.fromLegacyText(msg);
+            TextComponent textMessage = new TextComponent(baseComponent);
+            textMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
                     Dates.formatTime(time, 1) + lang("bb.ago"))));
-            player.spigot().sendMessage(textComponent);
+            player.spigot().sendMessage(textMessage);
             return true;
-        } catch (Throwable rock) {
+        } catch (Exception rock) {
             return false;
         }
     }

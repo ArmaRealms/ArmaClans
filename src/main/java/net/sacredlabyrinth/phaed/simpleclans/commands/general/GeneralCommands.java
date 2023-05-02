@@ -17,12 +17,14 @@ import net.sacredlabyrinth.phaed.simpleclans.conversation.CreateRankNamePrompt;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.RequestCanceller;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.ResetKdrPrompt;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.SCConversation;
+import net.sacredlabyrinth.phaed.simpleclans.events.PlayerResetKdrEvent;
 import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
 import net.sacredlabyrinth.phaed.simpleclans.managers.RequestManager;
 import net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager;
 import net.sacredlabyrinth.phaed.simpleclans.managers.StorageManager;
 import net.sacredlabyrinth.phaed.simpleclans.ui.InventoryDrawer;
 import net.sacredlabyrinth.phaed.simpleclans.ui.frames.MainFrame;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.entity.Player;
@@ -167,7 +169,9 @@ public class GeneralCommands extends BaseCommand {
             ChatBlock.sendMessage(player, RED + lang("disabled.command", player));
             return;
         }
-        if (cm.purchaseResetKdr(player)) {
+        PlayerResetKdrEvent event = new PlayerResetKdrEvent(player);
+        Bukkit.getServer().getPluginManager().callEvent(event);
+        if (!event.isCancelled() && cm.purchaseResetKdr(player)) {
             cm.resetKdr(cp);
             ChatBlock.sendMessage(player, RED + lang("you.have.reseted.your.kdr", player));
         }
@@ -270,7 +274,7 @@ public class GeneralCommands extends BaseCommand {
             Clan clan = clans.get(i);
             String name = " " + (clan.isVerified() ? settings.getColored(PAGE_CLAN_NAME_COLOR) : GRAY) + clan.getName();
             String line = MessageFormat.format(lineFormat, i + 1, leftBracket, clan.getColorTag(),
-                    rightBracket, name, clan.getBalance());
+                    rightBracket, name, clan.getBalanceFormatted());
             sender.sendMessage(line);
         }
     }
