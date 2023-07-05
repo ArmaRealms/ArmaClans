@@ -8,7 +8,7 @@
     <url>https://www.spigotmc.org/resources/simpleclans.71242/</url>
 
     <build>
-        <finalName>${project.name}</finalName>
+        <finalName>${project.name}-${project.version}</finalName>
 
         <!-- Resources -->
         <resources>
@@ -171,8 +171,6 @@
                 </executions>
                 <configuration>
                     <release>16</release>
-
-                    <additionalparam>-Xdoclint:none</additionalparam>
                     <additionalOptions>-Xdoclint:none</additionalOptions>
                     <additionalJOption>-Xdoclint:none</additionalJOption>
                 </configuration>
