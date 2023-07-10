@@ -64,7 +64,7 @@ public class Components {
                                 pl.getSettingsManager().getInt(PURGE_INACTIVE_PLAYER_DAYS))),
                 XMaterial.PLAYER_HEAD, slot);
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(cp.getUniqueId());
-        setOwningPlayer(c.getItem(), offlinePlayer);
+        //setOwningPlayer(c.getItem(), offlinePlayer);
         if (viewer.getUniqueId().equals(cp.getUniqueId())) {
             c.setLorePermission("simpleclans.member.lookup");
         } else {
