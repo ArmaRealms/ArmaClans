@@ -293,12 +293,12 @@ public class ClanDetailsFrame extends SCFrame {
 		SCComponent roster = new SCComponentImpl(lang("gui.clandetails.roster.title", getViewer()),
 				Collections.singletonList(lang("gui.clandetails.roster.lore", getViewer())), XMaterial.PLAYER_HEAD,
 				19);
-		List<ClanPlayer> members = clan.getMembers();
-		if (members.size() != 0) {
-			OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(
-					members.get((int) (Math.random() * members.size())).getUniqueId());
-			Components.setOwningPlayer(roster.getItem(), offlinePlayer);
-		}
+//		List<ClanPlayer> members = clan.getMembers();
+//		if (members.size() != 0) {
+//			OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(
+//					members.get((int) (Math.random() * members.size())).getUniqueId());
+//			Components.setOwningPlayer(roster.getItem(), offlinePlayer);
+//		}
 		roster.setVerifiedOnly(ClickType.LEFT);
 		roster.setListener(ClickType.LEFT, () -> InventoryDrawer.open(new RosterFrame(getViewer(), this, clan)));
 		roster.setPermission(ClickType.LEFT, "simpleclans.member.roster");
