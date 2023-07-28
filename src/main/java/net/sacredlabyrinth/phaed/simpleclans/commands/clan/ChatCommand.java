@@ -26,6 +26,19 @@ public class ChatCommand extends BaseCommand {
     @Default
     @HelpSearchTags("chat")
     public void sendMessage(ClanPlayer cp, @Name("message") String message) {
+        if (message == null || message.isEmpty()) {
+            if (cp.getChannel() == CLAN) {
+                cp.setChannel(NONE);
+                storageManager.updateClanPlayer(cp);
+                ChatBlock.sendMessage(cp, lang("left.clan.chat", cp));
+            } else {
+                cp.setChannel(CLAN);
+                storageManager.updateClanPlayer(cp);
+                ChatBlock.sendMessage(cp, lang("joined.clan.chat"));
+            }
+            return;
+        }
+
         chatManager.processChat(SPIGOT, CLAN, cp, message);
     }
 
