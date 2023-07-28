@@ -34,7 +34,7 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
-                    <release>16</release>
+                    <release>17</release>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
