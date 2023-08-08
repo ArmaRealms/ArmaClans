@@ -29,7 +29,19 @@ public class AllyChatCommand extends BaseCommand {
     @Default
     @HelpSearchTags("chat")
     public void sendMessage(ClanPlayer cp, @Name("message") String message) {
-        chatManager.processChat(SPIGOT, ALLY, cp, message);
+        if (message == null || message.isBlank()) {
+            if (cp.getChannel() == ALLY) {
+                cp.setChannel(NONE);
+                storageManager.updateClanPlayer(cp);
+                ChatBlock.sendMessage(cp, lang("left.ally.chat", cp));
+            } else {
+                cp.setChannel(ALLY);
+                storageManager.updateClanPlayer(cp);
+                ChatBlock.sendMessage(cp, lang("joined.ally.chat"));
+            }
+        } else {
+            chatManager.processChat(SPIGOT, ALLY, cp, message);
+        }
     }
 
     @Subcommand("%join")
