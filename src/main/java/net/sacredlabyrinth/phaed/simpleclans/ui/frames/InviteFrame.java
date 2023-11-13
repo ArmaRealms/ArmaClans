@@ -5,7 +5,7 @@ import net.sacredlabyrinth.phaed.simpleclans.RankPermission;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
 import net.sacredlabyrinth.phaed.simpleclans.ui.*;
-import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
+import net.sacredlabyrinth.phaed.simpleclans.utils.CurrencyFormat;
 import net.sacredlabyrinth.phaed.simpleclans.utils.Paginator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -55,13 +55,13 @@ public class InviteFrame extends SCFrame {
 	private SCComponent createPlayerComponent(@NotNull Player player, int slot) {
 		double price = plugin.getSettingsManager().is(ECONOMY_PURCHASE_CLAN_INVITE) ? plugin.getSettingsManager().getDouble(ECONOMY_INVITE_PRICE) : 0;
 		List<String> lore = new ArrayList<>();
-		if (price != 0) lore.add(lang("gui.invite.player.price.lore", getViewer(), ChatUtils.formatCurrency(price)));
+		if (price != 0) lore.add(lang("gui.invite.player.price.lore", getViewer(), CurrencyFormat.format(price)));
 		lore.add(lang("gui.invite.player.lore", getViewer()));
 
 		SCComponent c = new SCComponentImpl(
 				lang("gui.invite.player.title", getViewer(), player.getName()), lore, XMaterial.PLAYER_HEAD, slot);
 		OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player.getUniqueId());
-		//Components.setOwningPlayer(c.getItem(), offlinePlayer);
+		Components.setOwningPlayer(c.getItem(), offlinePlayer);
 		c.setListener(ClickType.LEFT, () -> InventoryController.runSubcommand(getViewer(), "invite", false, player.getName()));
 		c.setPermission(ClickType.LEFT, RankPermission.INVITE);
 		return c;

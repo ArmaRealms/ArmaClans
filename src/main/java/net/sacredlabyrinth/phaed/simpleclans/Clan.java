@@ -10,6 +10,8 @@ import net.sacredlabyrinth.phaed.simpleclans.loggers.BankLogger;
 import net.sacredlabyrinth.phaed.simpleclans.loggers.BankOperator;
 import net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager;
 import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
+import net.sacredlabyrinth.phaed.simpleclans.utils.CurrencyFormat;
+import net.sacredlabyrinth.phaed.simpleclans.utils.DateFormat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -114,12 +116,12 @@ public class Clan implements Serializable, Comparable<Clan> {
     public void deposit(double amount, Player player) {
         if (SimpleClans.getInstance().getPermissionsManager().playerHasMoney(player, amount)) {
             if (SimpleClans.getInstance().getPermissionsManager().chargePlayer(player, amount)) {
-                player.sendMessage(AQUA + lang("player.clan.deposit", player, amount));
-                addBb(player.getName(), lang("bb.clan.deposit", amount));
+                player.sendMessage(AQUA + lang("player.clan.deposit", player, CurrencyFormat.format(amount)));
+                addBb(player.getName(), lang("bb.clan.deposit", CurrencyFormat.format(amount)));
                 setBalance(getBalance() + amount);
                 SimpleClans.getInstance().getStorageManager().updateClan(this);
             } else {
-                player.sendMessage(AQUA + lang("not.sufficient.money", player, amount));
+                player.sendMessage(AQUA + lang("not.sufficient.money", player, CurrencyFormat.format(amount)));
             }
         } else {
             player.sendMessage(AQUA + lang("not.sufficient.money", player, amount));
@@ -151,8 +153,8 @@ public class Clan implements Serializable, Comparable<Clan> {
     public void withdraw(double amount, Player player) {
         if (getBalance() >= amount) {
             if (SimpleClans.getInstance().getPermissionsManager().grantPlayer(player, amount)) {
-                player.sendMessage(AQUA + lang("player.clan.withdraw", player, amount));
-                addBb(player.getName(), lang("bb.clan.withdraw", amount));
+                player.sendMessage(AQUA + lang("player.clan.withdraw", player, CurrencyFormat.format(amount)));
+                addBb(player.getName(), lang("bb.clan.withdraw", CurrencyFormat.format(amount)));
                 setBalance(getBalance() - amount);
             }
         } else {
@@ -253,7 +255,7 @@ public class Clan implements Serializable, Comparable<Clan> {
      */
     @Placeholder("balance_formatted")
     public String getBalanceFormatted() {
-        return ChatUtils.formatCurrency(balance);
+        return CurrencyFormat.format(balance);
     }
 
     /**
@@ -463,7 +465,7 @@ public class Clan implements Serializable, Comparable<Clan> {
      */
     @Placeholder("founded")
     public String getFoundedString() {
-        return ChatUtils.formatDate(founded);
+        return DateFormat.formatDateTime(founded);
     }
 
     /**
