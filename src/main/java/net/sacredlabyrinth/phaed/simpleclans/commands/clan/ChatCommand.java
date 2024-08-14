@@ -1,7 +1,15 @@
 package net.sacredlabyrinth.phaed.simpleclans.commands.clan;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Conditions;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Dependency;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.HelpSearchTags;
+import co.aikar.commands.annotation.Name;
+import co.aikar.commands.annotation.Optional;
 import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.managers.ChatManager;
@@ -41,37 +49,37 @@ public class ChatCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("%join")
-    public void join(ClanPlayer clanPlayer) {
-        if (clanPlayer.getChannel() == CLAN) {
-            ChatBlock.sendMessage(clanPlayer, lang("already.joined.clan.chat"));
-            return;
-        }
-
-        clanPlayer.setChannel(CLAN);
-        storageManager.updateClanPlayer(clanPlayer);
-        ChatBlock.sendMessage(clanPlayer, lang("joined.clan.chat"));
-    }
-
-    @Subcommand("%leave")
-    public void leave(ClanPlayer clanPlayer) {
-        if (clanPlayer.getChannel() == CLAN) {
-            clanPlayer.setChannel(NONE);
-            storageManager.updateClanPlayer(clanPlayer);
-            ChatBlock.sendMessage(clanPlayer, lang("left.clan.chat", clanPlayer));
-        } else {
-            ChatBlock.sendMessage(clanPlayer, lang("chat.didnt.join", clanPlayer));
-        }
-    }
-
-    @Subcommand("%mute")
-    public void mute(ClanPlayer clanPlayer) {
-        if (!clanPlayer.isMuted()) {
-            clanPlayer.mute(CLAN, true);
-            ChatBlock.sendMessage(clanPlayer, lang("muted.clan.chat", clanPlayer));
-        } else {
-            clanPlayer.mute(CLAN, false);
-            ChatBlock.sendMessage(clanPlayer, lang("unmuted.clan.chat", clanPlayer));
-        }
-    }
+//    @Subcommand("%join")
+//    public void join(ClanPlayer clanPlayer) {
+//        if (clanPlayer.getChannel() == CLAN) {
+//            ChatBlock.sendMessage(clanPlayer, lang("already.joined.clan.chat"));
+//            return;
+//        }
+//
+//        clanPlayer.setChannel(CLAN);
+//        storageManager.updateClanPlayer(clanPlayer);
+//        ChatBlock.sendMessage(clanPlayer, lang("joined.clan.chat"));
+//    }
+//
+//    @Subcommand("%leave")
+//    public void leave(ClanPlayer clanPlayer) {
+//        if (clanPlayer.getChannel() == CLAN) {
+//            clanPlayer.setChannel(NONE);
+//            storageManager.updateClanPlayer(clanPlayer);
+//            ChatBlock.sendMessage(clanPlayer, lang("left.clan.chat", clanPlayer));
+//        } else {
+//            ChatBlock.sendMessage(clanPlayer, lang("chat.didnt.join", clanPlayer));
+//        }
+//    }
+//
+//    @Subcommand("%mute")
+//    public void mute(ClanPlayer clanPlayer) {
+//        if (!clanPlayer.isMuted()) {
+//            clanPlayer.mute(CLAN, true);
+//            ChatBlock.sendMessage(clanPlayer, lang("muted.clan.chat", clanPlayer));
+//        } else {
+//            clanPlayer.mute(CLAN, false);
+//            ChatBlock.sendMessage(clanPlayer, lang("unmuted.clan.chat", clanPlayer));
+//        }
+//    }
 }
