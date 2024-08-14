@@ -19,15 +19,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 import static net.sacredlabyrinth.phaed.simpleclans.ClanPlayer.Channel;
 import static net.sacredlabyrinth.phaed.simpleclans.chat.SCMessage.Source;
 import static net.sacredlabyrinth.phaed.simpleclans.chat.SCMessage.Source.DISCORD;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField;
-import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.*;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ALLYCHAT_ENABLE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.CLANCHAT_ENABLE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.DISCORDCHAT_ENABLE;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public final class ChatManager {
@@ -53,11 +60,8 @@ public final class ChatManager {
 
     @Nullable
     public DiscordHook getDiscordHook() {
-        if (isDiscordHookEnabled()) {
-            // Manually instantiate, if JDA did load faster than SC
-            if (discordHook == null && DiscordSRV.getPlugin().getJda().getStatus() == JDA.Status.CONNECTED) {
-                registerDiscord(new DiscordReadyEvent());
-            }
+        if (isDiscordHookEnabled() && discordHook == null && DiscordSRV.getPlugin().getJda().getStatus() == JDA.Status.CONNECTED) {
+            registerDiscord(new DiscordReadyEvent());
         }
 
         return discordHook;
@@ -74,17 +78,16 @@ public final class ChatManager {
                 }
 
                 receivers.addAll(getOnlineAllyMembers(clan).stream().filter(allyMember ->
-                        !allyMember.isMutedAlly()).collect(Collectors.toList()));
+                        !allyMember.isMutedAlly()).toList());
                 receivers.addAll(clan.getOnlineMembers().stream().filter(onlineMember ->
-                        !onlineMember.isMutedAlly()).collect(Collectors.toList()));
+                        !onlineMember.isMutedAlly()).toList());
                 break;
             case CLAN:
                 if (!plugin.getSettingsManager().is(CLANCHAT_ENABLE)) {
                     return;
                 }
 
-                receivers.addAll(clan.getOnlineMembers().stream().filter(member -> !member.isMuted()).
-                        collect(Collectors.toList()));
+                receivers.addAll(clan.getOnlineMembers().stream().filter(member -> !member.isMuted()).toList());
         }
         message.setReceivers(receivers);
 
@@ -123,12 +126,11 @@ public final class ChatManager {
                 format = format.replace("%" + e.getKey() + "%", e.getValue());
             }
         }
-
+        String trustOrMemberColor = sender.isTrusted() ? trustedColor : memberColor;
         String parsedFormat = ChatUtils.parseColors(format)
                 .replace("%clan%", Objects.requireNonNull(sender.getClan()).getColorTag())
                 .replace("%clean-tag%", sender.getClan().getTag())
-                .replace("%nick-color%",
-                        (sender.isLeader() ? leaderColor : sender.isTrusted() ? trustedColor : memberColor))
+                .replace("%nick-color%", (sender.isLeader() ? leaderColor : trustOrMemberColor))
                 .replace("%player%", sender.getName())
                 .replace("%rank%", rankFormat)
                 .replace("%message%", message.getContent());
@@ -163,7 +165,8 @@ public final class ChatManager {
         for (Class<? extends ChatHandler> handler : chatHandlers) {
             try {
                 handlers.add(handler.getConstructor().newInstance());
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException ex) {
                 plugin.getLogger().log(Level.SEVERE, "Error while trying to register {0}: " +
                         ex.getMessage(), handler.getSimpleName());
             }
@@ -172,7 +175,7 @@ public final class ChatManager {
 
     private List<ClanPlayer> getOnlineAllyMembers(Clan clan) {
         return clan.getAllAllyMembers().stream().
-                filter(allyPlayer -> allyPlayer.toPlayer() != null).
-                collect(Collectors.toList());
+                filter(allyPlayer -> allyPlayer.toPlayer() != null)
+                .toList();
     }
 }
