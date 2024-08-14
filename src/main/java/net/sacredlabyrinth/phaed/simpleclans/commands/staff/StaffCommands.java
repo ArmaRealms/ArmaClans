@@ -1,10 +1,25 @@
 package net.sacredlabyrinth.phaed.simpleclans.commands.staff;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
-import net.sacredlabyrinth.phaed.simpleclans.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Conditions;
+import co.aikar.commands.annotation.Dependency;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.HelpSearchTags;
+import co.aikar.commands.annotation.Name;
+import co.aikar.commands.annotation.Single;
+import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.Values;
+import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
+import net.sacredlabyrinth.phaed.simpleclans.Clan;
+import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
+import net.sacredlabyrinth.phaed.simpleclans.Helper;
+import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanInput;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanPlayerInput;
+import net.sacredlabyrinth.phaed.simpleclans.events.PrePlayerKickedClanEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.PlayerHomeSetEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.PlayerResetKdrEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.TagChangeEvent;
@@ -15,7 +30,6 @@ import net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager;
 import net.sacredlabyrinth.phaed.simpleclans.managers.StorageManager;
 import net.sacredlabyrinth.phaed.simpleclans.ui.InventoryController;
 import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
-import net.sacredlabyrinth.phaed.simpleclans.utils.TagValidator;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -58,11 +72,16 @@ public class StaffCommands extends BaseCommand {
 
         if (oldCp != null) {
             Clan oldClan = Objects.requireNonNull(oldCp.getClan());
+            if (new PrePlayerKickedClanEvent(oldClan, oldCp).callEvent()) {
+                ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
+                return;
+            }
 
             if (oldClan.equals(newClan)) {
                 ChatBlock.sendMessage(sender, lang("player.already.in.this.clan", sender));
                 return;
             }
+
             if (!oldClan.isPermanent() && oldClan.isLeader(uuid) && oldClan.getLeaders().size() <= 1) {
                 ChatBlock.sendMessage(sender, RED + lang("you.cannot.move.the.last.leader", sender));
                 return;
@@ -247,8 +266,13 @@ public class StaffCommands extends BaseCommand {
 
         Clan clan = player.getClanPlayer().getClan();
         if (clan != null && clan.getMembers().size() == 1) {
+            if (new PrePlayerKickedClanEvent(clan, player.getClanPlayer()).callEvent()) {
+                ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
+                return;
+            }
             clan.disband(sender, false, false);
         }
+
         cm.deleteClanPlayer(player.getClanPlayer());
         ChatBlock.sendMessage(sender, AQUA + lang("player.purged", sender));
     }
@@ -260,13 +284,17 @@ public class StaffCommands extends BaseCommand {
     public void kick(CommandSender sender, @Conditions("clan_member") @Name("player") ClanPlayerInput cp) {
         ClanPlayer clanPlayer = cp.getClanPlayer();
         Clan clan = Objects.requireNonNull(clanPlayer.getClan());
+        if (new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
+            ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
+            return;
+        }
+
         if (clanPlayer.isLeader() && clan.getLeaders().size() == 1) {
             ChatBlock.sendMessageKey(sender, "cannot.kick.last.leader");
             return;
         }
 
-        clan.addBb(sender.getName(), lang("has.been.kicked.by", clanPlayer.getName(),
-                sender.getName(), sender));
+        clan.addBb(sender.getName(), lang("has.been.kicked.by", clanPlayer.getName(), sender.getName(), sender));
         clan.removePlayerFromClan(clanPlayer.getUniqueId());
     }
 
@@ -286,8 +314,7 @@ public class StaffCommands extends BaseCommand {
         ClanPlayer clanPlayer = promote.getClanPlayer();
         Player promotePl = Objects.requireNonNull(clanPlayer.toPlayer());
         if (!permissions.has(promotePl, "simpleclans.leader.promotable")) {
-            ChatBlock.sendMessage(sender, RED + lang("the.player.does.not.have.the.permissions.to.lead.a.clan",
-                    sender));
+            ChatBlock.sendMessage(sender, RED + lang("the.player.does.not.have.the.permissions.to.lead.a.clan", sender));
             return;
         }
         Clan clan = Objects.requireNonNull(clanPlayer.getClan());
