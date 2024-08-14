@@ -21,7 +21,7 @@ import static net.sacredlabyrinth.phaed.simpleclans.SimpleClans.lang;
 import static net.sacredlabyrinth.phaed.simpleclans.chat.SCMessage.Source.SPIGOT;
 
 @CommandAlias("%clan_chat")
-@Conditions("%basic_conditions|clan_member|can_chat:type=CLAN")
+@Conditions("%basic_conditions|clan_member|can_chat:type=CLAN|rank:name=CLAN_CHAT")
 @CommandPermission("simpleclans.member.chat")
 @Description("{@@command.description.chat}")
 public class ChatCommand extends BaseCommand {
@@ -33,7 +33,7 @@ public class ChatCommand extends BaseCommand {
 
     @Default
     @HelpSearchTags("chat")
-    public void sendMessage(ClanPlayer cp, @Name("message") String message) {
+    public void sendMessage(ClanPlayer cp, @Optional @Name("message") String message) {
         if (message == null || message.isBlank()) {
             if (cp.getChannel() == CLAN) {
                 cp.setChannel(NONE);

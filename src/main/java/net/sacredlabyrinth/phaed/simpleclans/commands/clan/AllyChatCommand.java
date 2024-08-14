@@ -13,7 +13,6 @@ import co.aikar.commands.annotation.Optional;
 import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.managers.ChatManager;
-import net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager;
 import net.sacredlabyrinth.phaed.simpleclans.managers.StorageManager;
 
 import static net.sacredlabyrinth.phaed.simpleclans.ClanPlayer.Channel.ALLY;
@@ -30,13 +29,11 @@ public class AllyChatCommand extends BaseCommand {
     @Dependency
     private ChatManager chatManager;
     @Dependency
-    private SettingsManager settingsManager;
-    @Dependency
     private StorageManager storageManager;
 
     @Default
     @HelpSearchTags("chat")
-    public void sendMessage(ClanPlayer cp, @Name("message") String message) {
+    public void sendMessage(ClanPlayer cp, @Optional @Name("message") String message) {
         if (message == null || message.isBlank()) {
             if (cp.getChannel() == ALLY) {
                 cp.setChannel(NONE);
