@@ -28,7 +28,7 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
       - name: Install VentureChat
-        run: mvn install:install-file -Dfile=libs/VentureChat-3.7.1.jar -DgroupId=mineverse.Aust1n46 -DartifactId=VentureChat -Dversion=3.7.1 -Dpackaging=jar -f pom.xml
+        run: mvn install:install-file -Dfile=libs/VentureChat-3.7.1.jar -DgroupId=mineverse.Aust1n46.chat -DartifactId=VentureChat -Dversion=3.7.1 -Dpackaging=jar -f pom.xml
       - name: Build with Maven
         run: ./mvnw -B -U package --file pom.xml
       - name: Upload Build Artifact

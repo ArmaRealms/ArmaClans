@@ -13,7 +13,7 @@
             <list>
               <option value="install:install-file" />
               <option value="-Dfile=libs/VentureChat-3.7.1.jar" />
-              <option value="-DgroupId=mineverse.Aust1n46" />
+              <option value="-DgroupId=mineverse.Aust1n46.chat" />
               <option value="-DartifactId=VentureChat" />
               <option value="-Dversion=3.7.1" />
               <option value="-Dpackaging=jar" />

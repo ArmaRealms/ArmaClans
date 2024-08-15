@@ -264,7 +264,7 @@
             <version>2.10.1</version>
         </dependency>
         <dependency>
-            <groupId>mineverse.Aust1n46</groupId>
+            <groupId>mineverse.Aust1n46.chat</groupId>
             <artifactId>VentureChat</artifactId>
             <version>3.7.1</version>
         </dependency>
