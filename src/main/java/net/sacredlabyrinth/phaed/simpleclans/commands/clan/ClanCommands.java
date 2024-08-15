@@ -1,14 +1,33 @@
 package net.sacredlabyrinth.phaed.simpleclans.commands.clan;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.*;
-import net.sacredlabyrinth.phaed.simpleclans.*;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandCompletion;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Conditions;
+import co.aikar.commands.annotation.Dependency;
+import co.aikar.commands.annotation.Description;
+import co.aikar.commands.annotation.HelpSearchTags;
+import co.aikar.commands.annotation.Name;
+import co.aikar.commands.annotation.Single;
+import co.aikar.commands.annotation.Subcommand;
+import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
+import net.sacredlabyrinth.phaed.simpleclans.Clan;
+import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
+import net.sacredlabyrinth.phaed.simpleclans.Helper;
+import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanInput;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanPlayerInput;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.ResignPrompt;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.SCConversation;
+import net.sacredlabyrinth.phaed.simpleclans.events.PrePlayerKickedClanEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.TagChangeEvent;
-import net.sacredlabyrinth.phaed.simpleclans.managers.*;
+import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
+import net.sacredlabyrinth.phaed.simpleclans.managers.PermissionsManager;
+import net.sacredlabyrinth.phaed.simpleclans.managers.ProtectionManager;
+import net.sacredlabyrinth.phaed.simpleclans.managers.RequestManager;
+import net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager;
+import net.sacredlabyrinth.phaed.simpleclans.managers.StorageManager;
 import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
 import net.sacredlabyrinth.phaed.simpleclans.utils.CurrencyFormat;
 import org.bukkit.entity.Player;
@@ -19,7 +38,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static net.sacredlabyrinth.phaed.simpleclans.SimpleClans.lang;
-import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.*;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.CLAN_MAX_ALLIANCES;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.CLAN_MAX_DESCRIPTION_LENGTH;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.CLAN_MAX_MEMBERS;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.CLAN_MIN_DESCRIPTION_LENGTH;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_MAX_MEMBER_FEE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.WAR_START_REQUEST_ENABLED;
 import static org.bukkit.ChatColor.AQUA;
 import static org.bukkit.ChatColor.RED;
 
@@ -348,15 +372,16 @@ public class ClanCommands extends BaseCommand {
             ChatBlock.sendMessage(sender, RED + lang("you.cannot.kick.yourself", sender));
             return;
         }
-
         Clan clan = cm.getClanByPlayerUniqueId(sender.getUniqueId());
         if (Objects.requireNonNull(clan).isLeader(clanPlayer.getUniqueId())) {
             ChatBlock.sendMessage(sender, RED + lang("you.cannot.kick.another.leader", sender));
             return;
         }
-
-        clan.addBb(sender.getName(), lang("has.been.kicked.by", clanPlayer.getName(),
-                sender.getName(), sender));
+        if (new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
+            ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
+            return;
+        }
+        clan.addBb(sender.getName(), lang("has.been.kicked.by", clanPlayer.getName(), sender.getName(), sender));
         clan.removePlayerFromClan(clanPlayer.getUniqueId());
     }
 
@@ -365,18 +390,18 @@ public class ClanCommands extends BaseCommand {
     @Description("{@@command.description.resign}")
     @HelpSearchTags("leave")
     public void resignConfirm(Player player, ClanPlayer cp, Clan clan) {
-        if (clan.isPermanent() || !clan.isLeader(player) || clan.getLeaders().size() > 1) {
+        if (new PrePlayerKickedClanEvent(clan, cp).callEvent()) {
+            ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
+        } else if (clan.isPermanent() || !clan.isLeader(player) || clan.getLeaders().size() > 1) {
             clan.addBb(player.getName(), lang("0.has.resigned", player.getName()));
             cp.addResignTime(clan.getTag());
             clan.removePlayerFromClan(player.getUniqueId());
-
             ChatBlock.sendMessage(cp, AQUA + lang("resign.success", player));
         } else if (clan.isLeader(player) && clan.getLeaders().size() == 1) {
             clan.disband(player, true, false);
             ChatBlock.sendMessage(cp, RED + lang("clan.has.been.disbanded", player, clan.getName()));
         } else {
-            ChatBlock.sendMessage(cp, RED +
-                    lang("last.leader.cannot.resign.you.must.appoint.another.leader.or.disband.the.clan", player));
+            ChatBlock.sendMessage(cp, RED + lang("last.leader.cannot.resign.you.must.appoint.another.leader.or.disband.the.clan", player));
         }
     }
 
@@ -385,6 +410,10 @@ public class ClanCommands extends BaseCommand {
     @Description("{@@command.description.resign}")
     @HelpSearchTags("leave")
     public void resign(@Conditions("clan_member") Player player) {
+        if (new PrePlayerKickedClanEvent(cm.getClanByPlayerUniqueId(player.getUniqueId()), cm.getClanPlayer(player)).callEvent()) {
+            ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
+            return;
+        }
         new SCConversation(plugin, player, new ResignPrompt()).begin();
     }
 }
