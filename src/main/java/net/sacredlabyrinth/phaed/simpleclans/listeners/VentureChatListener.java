@@ -23,6 +23,7 @@ public class VentureChatListener implements Listener {
     public void onVentureChat(@NotNull ChannelJoinEvent event) {
         ClanPlayer clanPlayer = clanManager.getClanPlayer(event.getPlayer());
         if (clanPlayer == null) return;
+        if (clanPlayer.getChannel() == ClanPlayer.Channel.NONE) return;
         clanPlayer.setChannel(ClanPlayer.Channel.NONE);
         storageManager.updateClanPlayer(clanPlayer);
     }
