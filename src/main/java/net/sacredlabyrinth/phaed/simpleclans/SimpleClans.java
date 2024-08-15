@@ -126,6 +126,7 @@ public class SimpleClans extends JavaPlugin {
         startTasks();
         startMetrics();
         hookIntoPAPI();
+        hookIntoVentureChat();
         new UpdateChecker(this).check();
     }
 
@@ -145,15 +146,19 @@ public class SimpleClans extends JavaPlugin {
         pm.registerEvents(new TamableMobsSharing(this), this);
         pm.registerEvents(new PvPOnlyInWar(this), this);
         pm.registerEvents(new FriendlyFire(this), this);
-        if (pm.isPluginEnabled("VentureChat")) {
-            pm.registerEvents(new VentureChatListener(this), this);
-        }
     }
 
     private void hookIntoPAPI() {
         if (getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getLogger().info("PlaceholderAPI found. Registering hook...");
             new SimpleClansExpansion(this).register();
+        }
+    }
+
+    private void hookIntoVentureChat() {
+        if (getPluginManager().getPlugin("VentureChat") != null) {
+            getLogger().info("VentureChat found. Registering hook...");
+            getPluginManager().registerEvents(new VentureChatListener(this), this);
         }
     }
 
