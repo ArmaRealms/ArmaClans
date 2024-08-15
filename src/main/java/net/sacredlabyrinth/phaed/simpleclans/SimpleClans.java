@@ -145,6 +145,9 @@ public class SimpleClans extends JavaPlugin {
         pm.registerEvents(new TamableMobsSharing(this), this);
         pm.registerEvents(new PvPOnlyInWar(this), this);
         pm.registerEvents(new FriendlyFire(this), this);
+        if (pm.isPluginEnabled("VentureChat")) {
+            pm.registerEvents(new VentureChatListener(this), this);
+        }
     }
 
     private void hookIntoPAPI() {
