@@ -152,10 +152,10 @@ public class SCPlayerListener extends SCListener {
     private void registerChatListener() {
         EventPriority priority = EventPriority.valueOf(settingsManager.getString(CLANCHAT_LISTENER_PRIORITY));
         plugin.getServer().getPluginManager().registerEvent(AsyncPlayerChatEvent.class, this, priority, (l, e) -> {
-            if (!(e instanceof AsyncPlayerChatEvent)) {
+            if (!(e instanceof AsyncPlayerChatEvent event)) {
                 return;
             }
-            AsyncPlayerChatEvent event = (AsyncPlayerChatEvent) e;
+
             Player player = event.getPlayer();
             ClanPlayer cp = plugin.getClanManager().getClanPlayer(player.getUniqueId());
             if (cp == null || isBlacklistedWorld(player)) {
