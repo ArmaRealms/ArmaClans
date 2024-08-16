@@ -377,7 +377,7 @@ public class ClanCommands extends BaseCommand {
             ChatBlock.sendMessage(sender, RED + lang("you.cannot.kick.another.leader", sender));
             return;
         }
-        if (new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
+        if (!new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
             ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
             return;
         }
@@ -390,7 +390,7 @@ public class ClanCommands extends BaseCommand {
     @Description("{@@command.description.resign}")
     @HelpSearchTags("leave")
     public void resignConfirm(Player player, ClanPlayer cp, Clan clan) {
-        if (new PrePlayerKickedClanEvent(clan, cp).callEvent()) {
+        if (!new PrePlayerKickedClanEvent(clan, cp).callEvent()) {
             ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
         } else if (clan.isPermanent() || !clan.isLeader(player) || clan.getLeaders().size() > 1) {
             clan.addBb(player.getName(), lang("0.has.resigned", player.getName()));
@@ -410,7 +410,7 @@ public class ClanCommands extends BaseCommand {
     @Description("{@@command.description.resign}")
     @HelpSearchTags("leave")
     public void resign(@Conditions("clan_member") Player player) {
-        if (new PrePlayerKickedClanEvent(cm.getClanByPlayerUniqueId(player.getUniqueId()), cm.getClanPlayer(player)).callEvent()) {
+        if (!new PrePlayerKickedClanEvent(cm.getClanByPlayerUniqueId(player.getUniqueId()), cm.getClanPlayer(player)).callEvent()) {
             ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
             return;
         }

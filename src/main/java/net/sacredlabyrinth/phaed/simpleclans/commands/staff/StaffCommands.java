@@ -72,7 +72,7 @@ public class StaffCommands extends BaseCommand {
 
         if (oldCp != null) {
             Clan oldClan = Objects.requireNonNull(oldCp.getClan());
-            if (new PrePlayerKickedClanEvent(oldClan, oldCp).callEvent()) {
+            if (!new PrePlayerKickedClanEvent(oldClan, oldCp).callEvent()) {
                 ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
                 return;
             }
@@ -266,7 +266,7 @@ public class StaffCommands extends BaseCommand {
 
         Clan clan = player.getClanPlayer().getClan();
         if (clan != null && clan.getMembers().size() == 1) {
-            if (new PrePlayerKickedClanEvent(clan, player.getClanPlayer()).callEvent()) {
+            if (!new PrePlayerKickedClanEvent(clan, player.getClanPlayer()).callEvent()) {
                 ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
                 return;
             }
@@ -284,7 +284,7 @@ public class StaffCommands extends BaseCommand {
     public void kick(CommandSender sender, @Conditions("clan_member") @Name("player") ClanPlayerInput cp) {
         ClanPlayer clanPlayer = cp.getClanPlayer();
         Clan clan = Objects.requireNonNull(clanPlayer.getClan());
-        if (new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
+        if (!new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
             ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
             return;
         }

@@ -130,7 +130,7 @@ public class LeaderCommands extends BaseCommand {
     @CommandPermission("simpleclans.leader.disband")
     @Description("{@@command.description.disband}")
     public void disband(Player player, ClanPlayer cp, Clan clan) {
-        if (new PrePlayerKickedClanEvent(clan, cp).callEvent()) {
+        if (!new PrePlayerKickedClanEvent(clan, cp).callEvent()) {
             ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
             return;
         }
