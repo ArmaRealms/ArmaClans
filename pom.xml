@@ -267,6 +267,7 @@
             <groupId>mineverse.Aust1n46.chat</groupId>
             <artifactId>VentureChat</artifactId>
             <version>3.7.1</version>
+            <scope>provided</scope>
         </dependency>
         <!--    Test frameworks    -->
         <dependency>
