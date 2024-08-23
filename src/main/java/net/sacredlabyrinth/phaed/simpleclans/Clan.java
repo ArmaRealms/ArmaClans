@@ -305,6 +305,7 @@ public class Clan implements Serializable, Comparable<Clan> {
     public void setTag(String tag) {
         this.tag = tag;
     }
+
     /**
      * Returns the first color in the clan's tag
      *
@@ -1389,6 +1390,11 @@ public class Clan implements Serializable, Comparable<Clan> {
      * @param force    should it be force disbanded?
      */
     public void disband(@Nullable CommandSender sender, boolean announce, boolean force) {
+        if (!new PreDisbandClanEvent(sender, this).callEvent()) {
+            ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
+            return;
+        }
+
         Collection<ClanPlayer> clanPlayers = SimpleClans.getInstance().getClanManager().getAllClanPlayers();
         List<Clan> clans = SimpleClans.getInstance().getClanManager().getClans();
 
