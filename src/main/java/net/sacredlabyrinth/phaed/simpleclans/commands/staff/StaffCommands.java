@@ -22,6 +22,7 @@ import net.sacredlabyrinth.phaed.simpleclans.commands.ClanPlayerInput;
 import net.sacredlabyrinth.phaed.simpleclans.events.PrePlayerKickedClanEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.PlayerHomeSetEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.PlayerResetKdrEvent;
+import net.sacredlabyrinth.phaed.simpleclans.events.ReloadEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.TagChangeEvent;
 import net.sacredlabyrinth.phaed.simpleclans.language.LanguageResource;
 import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
@@ -142,6 +143,8 @@ public class StaffCommands extends BaseCommand {
         for (Clan clan : cm.getClans()) {
             permissions.updateClanPermissions(clan);
         }
+        Bukkit.getPluginManager().callEvent(new ReloadEvent(sender));
+
         ChatBlock.sendMessage(sender, AQUA + lang("configuration.reloaded", sender));
     }
 
