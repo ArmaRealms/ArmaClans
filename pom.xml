@@ -221,7 +221,7 @@
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>1.0.8-SNAPSHOT</version>
+            <version>1.0.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -232,7 +232,7 @@
         <dependency>
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
-            <version>9.9.0</version>
+            <version>11.2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
@@ -243,7 +243,7 @@
         <dependency>
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
-            <version>16.18.1</version>
+            <version>17.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
