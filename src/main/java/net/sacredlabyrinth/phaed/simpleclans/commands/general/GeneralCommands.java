@@ -245,7 +245,7 @@ public class GeneralCommands extends BaseCommand {
     @Subcommand("%help")
     @Description("{@@command.description.help}")
     public void help(CommandSender sender, CommandHelp help) {
-        boolean inClan = sender instanceof Player && cm.getClanByPlayerUniqueId(((Player) sender).getUniqueId()) != null;
+        boolean inClan = sender instanceof Player player && cm.getClanByPlayerUniqueId(player.getUniqueId()) != null;
         for (HelpEntry helpEntry : help.getHelpEntries()) {
             for (@SuppressWarnings("rawtypes") CommandParameter parameter : helpEntry.getParameters()) {
                 if (parameter.getType().equals(Clan.class) && !inClan) {

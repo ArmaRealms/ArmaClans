@@ -21,6 +21,7 @@ import net.sacredlabyrinth.phaed.simpleclans.commands.ClanPlayerInput;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.ResignPrompt;
 import net.sacredlabyrinth.phaed.simpleclans.conversation.SCConversation;
 import net.sacredlabyrinth.phaed.simpleclans.events.PrePlayerKickedClanEvent;
+import net.sacredlabyrinth.phaed.simpleclans.events.PrePlayerLeaveClanEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.TagChangeEvent;
 import net.sacredlabyrinth.phaed.simpleclans.managers.ClanManager;
 import net.sacredlabyrinth.phaed.simpleclans.managers.PermissionsManager;
@@ -390,7 +391,7 @@ public class ClanCommands extends BaseCommand {
     @Description("{@@command.description.resign}")
     @HelpSearchTags("leave")
     public void resignConfirm(Player player, ClanPlayer cp, Clan clan) {
-        if (!new PrePlayerKickedClanEvent(clan, cp).callEvent()) {
+        if (!new PrePlayerLeaveClanEvent(player, player).callEvent()) {
             ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
         } else if (clan.isPermanent() || !clan.isLeader(player) || clan.getLeaders().size() > 1) {
             clan.addBb(player.getName(), lang("0.has.resigned", player.getName()));
@@ -410,7 +411,7 @@ public class ClanCommands extends BaseCommand {
     @Description("{@@command.description.resign}")
     @HelpSearchTags("leave")
     public void resign(@Conditions("clan_member") Player player) {
-        if (!new PrePlayerKickedClanEvent(cm.getClanByPlayerUniqueId(player.getUniqueId()), cm.getClanPlayer(player)).callEvent()) {
+        if (!new PrePlayerLeaveClanEvent(player, player).callEvent()) {
             ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
             return;
         }
