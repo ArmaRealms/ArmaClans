@@ -372,7 +372,7 @@ public final class ClanManager {
                 return cp;
             }
         }
-        return getAnyClanPlayer(Objects.requireNonNullElseGet(Bukkit.getOfflinePlayerIfCached(playerName), () -> Bukkit.getOfflinePlayer(playerName)).getUniqueId());
+        return null;
     }
 
     /**
