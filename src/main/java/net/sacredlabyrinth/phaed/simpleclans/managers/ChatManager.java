@@ -132,10 +132,11 @@ public final class ChatManager {
                 .replace("%clean-tag%", sender.getClan().getTag())
                 .replace("%nick-color%", (sender.isLeader() ? leaderColor : trustOrMemberColor))
                 .replace("%player%", sender.getName())
-                .replace("%rank%", rankFormat)
+                .replace("%rank%", rankFormat);
+        parsedFormat = parseWithPapi(message.getSender(), parsedFormat)
                 .replace("%message%", message.getContent());
 
-        return parseWithPapi(message.getSender(), parsedFormat);
+        return parsedFormat;
     }
 
     public boolean isDiscordHookEnabled() {
