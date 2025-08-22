@@ -85,11 +85,20 @@ public class GeneralCommands extends BaseCommand {
     public void create(Player player, @Optional @Name("tag") String tag, @Optional @Name("name") String name) {
         ClanPlayer cp = cm.getAnyClanPlayer(player.getUniqueId());
 
-        if (cp != null && cp.getClan() != null) {
-            ChatBlock.sendMessage(player, RED + lang("you.must.first.resign", player,
-                    cp.getClan().getName()));
-            return;
+        if (cp != null) {
+            if (cp.getClan() != null) {
+                ChatBlock.sendMessage(player, RED + lang("you.must.first.resign", player,
+                        cp.getClan().getName()));
+                return;
+            }
+
+            long wait = cm.getMinutesBeforeAction(cp);
+            if (wait > 0) {
+                ChatBlock.sendMessage(player, RED + lang("you.must.wait.0.before.creating.a.clan", player, wait));
+                return;
+            }
         }
+
         HashMap<Object, Object> initialData = new HashMap<>();
         initialData.put(TAG_KEY, tag);
         initialData.put(NAME_KEY, name);

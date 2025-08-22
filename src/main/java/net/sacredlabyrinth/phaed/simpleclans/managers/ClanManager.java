@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -910,17 +911,56 @@ public final class ClanManager {
 
     public long getMinutesBeforeRejoin(@NotNull ClanPlayer cp, @NotNull Clan clan) {
         SettingsManager settings = plugin.getSettingsManager();
-        if (settings.is(ENABLE_REJOIN_COOLDOWN)) {
-            Long resign = cp.getResignTime(clan.getTag());
-            if (resign != null) {
-                long timePassed = Instant.ofEpochMilli(resign).until(Instant.now(), ChronoUnit.MINUTES);
-                int cooldown = settings.getInt(REJOIN_COOLDOWN);
-                if (timePassed < cooldown) {
-                    return cooldown - timePassed;
-                }
+        if (!settings.is(ENABLE_REJOIN_COOLDOWN)) {
+            return 0L;
+        }
+        if (settings.is(GLOBAL_REJOIN_COOLDOWN)) {
+            return getMinutesBeforeAction(cp);
+        }
+        Long resign = cp.getResignTime(clan.getTag());
+        if (resign != null) {
+            long timePassed = Instant.ofEpochMilli(resign).until(Instant.now(), ChronoUnit.MINUTES);
+            int cooldown = settings.getInt(REJOIN_COOLDOWN);
+            if (timePassed < cooldown) {
+                return cooldown - timePassed;
             }
         }
-        return 0;
+        return 0L;
+    }
+
+    /**
+     * Returns the minutes remaining before a player can perform restricted actions
+     * based on the rejoin cooldown across all previous clans.
+     */
+    public long getMinutesBeforeAction(@NotNull ClanPlayer cp) {
+        final SettingsManager settings = plugin.getSettingsManager();
+        if (!settings.is(ENABLE_REJOIN_COOLDOWN) || !settings.is(GLOBAL_REJOIN_COOLDOWN)) {
+            return 0L;
+        }
+
+        final long cooldown = settings.getInt(REJOIN_COOLDOWN);
+        if (cooldown <= 0) {
+            return 0L;
+        }
+
+        final var resignTimes = cp.getResignTimes().values();
+        if (resignTimes == null || resignTimes.isEmpty()) {
+            return 0L;
+        }
+
+        final Instant now = Instant.now();
+
+        // Longest remaining time among all resignations
+        final long maxRemaining = resignTimes.stream()
+            .mapToLong(resignMs -> {
+                final Instant resignAt = Instant.ofEpochMilli(resignMs);
+                final long minutesPassed = Duration.between(resignAt, now).toMinutes();
+                return cooldown - minutesPassed;
+            })
+            .max()
+            .orElse(0L);
+
+        return Math.max(0L, maxRemaining);
     }
 
     /**

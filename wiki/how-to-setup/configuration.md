@@ -34,10 +34,11 @@ description: null
 * `server-name` -  
 * `new-clan-verification-required` -  
 * `allow-regroup-command` -  
-* `allow-reset-kdr` -  
-* `rejoin-cooldown` -  
-* `rejoin-cooldown-enabled` -  
-* `min-to-verify` - The clan must have this amount of members to get verified \(moderators can bypass this\) 
+* `allow-reset-kdr` -
+* `rejoin-cooldown` -
+* `rejoin-cooldown-enabled` -
+* `rejoin-cooldown-global` -
+* `min-to-verify` - The clan must have this amount of members to get verified \(moderators can bypass this\)
 * `ranking-type` - Valid options: ORDINAL and DENSE
   * `DENSE`: if players have the same KDR, they will have the same rank position. Ex.: 12234
   * `ORDINAL`: Every player will have a different rank position. Ex.: 12345
@@ -81,6 +82,7 @@ settings:
     allow-reset-kdr: false
     rejoin-cooldown: 60
     rejoin-cooldown-enabled: false
+    rejoin-cooldown-global: false
     min-to-verify: 1
     ranking-type: DENSE
 ```
