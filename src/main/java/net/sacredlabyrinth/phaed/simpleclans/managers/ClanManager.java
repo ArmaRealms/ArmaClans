@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,6 +67,7 @@ import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.Con
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_UNIQUE_TAX_ON_REGROUP;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_VERIFICATION_PRICE;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ENABLE_REJOIN_COOLDOWN;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.GLOBAL_REJOIN_COOLDOWN;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.KDR_DELAY_BETWEEN_KILLS;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.PAGE_HEADINGS_COLOR;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.REJOIN_COOLDOWN;
