@@ -972,7 +972,7 @@ public final class ClanManager {
             return 0L;
         }
 
-        final long cooldown = settings.getInt(REJOIN_COOLDOWN);
+        final int cooldown = settings.getInt(REJOIN_COOLDOWN);
         if (cooldown <= 0) {
             return 0L;
         }
