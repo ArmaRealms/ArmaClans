@@ -2,7 +2,12 @@ package net.sacredlabyrinth.phaed.simpleclans.managers;
 
 import com.cryptomorin.xseries.XMaterial;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.sacredlabyrinth.phaed.simpleclans.*;
+import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
+import net.sacredlabyrinth.phaed.simpleclans.Clan;
+import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
+import net.sacredlabyrinth.phaed.simpleclans.Helper;
+import net.sacredlabyrinth.phaed.simpleclans.Kill;
+import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.events.ClanBalanceUpdateEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.CreateClanEvent;
 import net.sacredlabyrinth.phaed.simpleclans.events.EconomyTransactionEvent.Cause;
@@ -27,12 +32,44 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import static net.sacredlabyrinth.phaed.simpleclans.SimpleClans.lang;
-import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.*;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.CHAT_COMPATIBILITY_MODE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.COLOR_CODE_FROM_PREFIX_FOR_NAME;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.DEBUG;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.DISABLE_MESSAGES;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.DISPLAY_CHAT_TAGS;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_CREATION_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_HOME_TELEPORT_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_HOME_TELEPORT_SET_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_INVITE_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_ISSUER_PAYS_REGROUP;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_MEMBER_FEE_SET_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_CLAN_CREATE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_CLAN_INVITE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_CLAN_VERIFY;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_HOME_REGROUP;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_HOME_TELEPORT;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_HOME_TELEPORT_SET;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_MEMBER_FEE_SET;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_PURCHASE_RESET_KDR;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_REGROUP_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_RESET_KDR_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_UNIQUE_TAX_ON_REGROUP;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_VERIFICATION_PRICE;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ENABLE_REJOIN_COOLDOWN;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.KDR_DELAY_BETWEEN_KILLS;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.PAGE_HEADINGS_COLOR;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.REJOIN_COOLDOWN;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.REQUIRE_VERIFICATION;
 import static org.bukkit.ChatColor.AQUA;
 import static org.bukkit.ChatColor.RED;
 
@@ -208,10 +245,9 @@ public final class ClanManager {
         return clans.get(Helper.cleanTag(tag));
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
     public Clan getClanByPlayerName(final String playerName) {
-        return getClanByPlayerUniqueId(Bukkit.getOfflinePlayer(playerName).getUniqueId());
+        return getClanByPlayerUniqueId(Objects.requireNonNullElseGet(Bukkit.getOfflinePlayerIfCached(playerName), () -> Bukkit.getOfflinePlayer(playerName)).getUniqueId());
     }
 
     /**
@@ -288,10 +324,9 @@ public final class ClanManager {
         return cp;
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
     public ClanPlayer getClanPlayer(final String playerName) {
-        return getClanPlayer(Bukkit.getOfflinePlayer(playerName).getUniqueId());
+        return getClanPlayer(Objects.requireNonNullElseGet(Bukkit.getOfflinePlayerIfCached(playerName), () -> Bukkit.getOfflinePlayer(playerName)).getUniqueId());
     }
 
     /**
@@ -331,7 +366,6 @@ public final class ClanManager {
         return clanPlayers.get(uuid);
     }
 
-    @SuppressWarnings("deprecation")
     @Nullable
     public ClanPlayer getAnyClanPlayer(final String playerName) {
         for (final ClanPlayer cp : getAllClanPlayers()) {
@@ -384,10 +418,9 @@ public final class ClanManager {
         return cp;
     }
 
-    @SuppressWarnings("deprecation")
     @NotNull
     public ClanPlayer getCreateClanPlayer(final String playerName) {
-        return getCreateClanPlayer(Bukkit.getOfflinePlayer(playerName).getUniqueId());
+        return getCreateClanPlayer(Objects.requireNonNullElseGet(Bukkit.getOfflinePlayerIfCached(playerName), () -> Bukkit.getOfflinePlayer(playerName)).getUniqueId());
     }
 
     /**
@@ -465,9 +498,8 @@ public final class ClanManager {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void ban(final String playerName) {
-        ban(Bukkit.getOfflinePlayer(playerName).getUniqueId());
+        ban(Objects.requireNonNullElseGet(Bukkit.getOfflinePlayerIfCached(playerName), () -> Bukkit.getOfflinePlayer(playerName)).getUniqueId());
     }
 
     /**

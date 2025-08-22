@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * 
+ *
  * @author RoinujNosde
  *
  */
@@ -41,7 +41,8 @@ public enum RankPermission {
 	DESCRIPTION("simpleclans.leader.description", PermissionLevel.LEADER),
 	MOSTKILLED("simpleclans.mod.mostkilled", PermissionLevel.TRUSTED),
 	FRIENDLYFIRE("simpleclans.leader.ff", PermissionLevel.LEADER),
-	SETBANNER("simpleclans.leader.setbanner", PermissionLevel.LEADER);
+	SETBANNER("simpleclans.leader.setbanner", PermissionLevel.LEADER),
+	CLAN_CHAT("simpleclans.member.chat", PermissionLevel.TRUSTED);
 
 	private final String bukkitPermission;
 	private final PermissionLevel permissionLevel;
@@ -60,7 +61,7 @@ public enum RankPermission {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return the PermissionLevel
 	 *
 	 */
@@ -74,7 +75,7 @@ public enum RankPermission {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param permission the permission
 	 * @return true if this is a valid rank permission
 	 */

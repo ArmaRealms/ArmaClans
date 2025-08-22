@@ -65,7 +65,7 @@ public class LeaderboardFrame extends SCFrame {
                             lang("gui.playerdetails.player.lore.last.seen", getViewer(), cp.getLastSeenString(getViewer()))),
                     XMaterial.PLAYER_HEAD, slot);
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(cp.getUniqueId());
-            Components.setOwningPlayer(c.getItem(), offlinePlayer);
+            //Components.setOwningPlayer(c.getItem(), offlinePlayer);
             c.setListener(ClickType.LEFT,
                     () -> InventoryDrawer.open(new PlayerDetailsFrame(getViewer(), this, offlinePlayer)));
             c.setLorePermission("simpleclans.anyone.leaderboard");

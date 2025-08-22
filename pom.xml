@@ -7,7 +7,7 @@
     <url>https://www.spigotmc.org/resources/simpleclans.71242/</url>
 
     <build>
-        <finalName>${project.name}</finalName>
+        <finalName>${project.name}-${project.version}</finalName>
 
         <!-- Resources -->
         <resources>
@@ -31,7 +31,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>8</release>
+                    <release>21</release>
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
@@ -167,7 +167,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <release>8</release>
+                    <release>21</release>
                     <doclint>all,-missing</doclint>
                 </configuration>
             </plugin>
@@ -181,9 +181,9 @@
     <!-- Dependencies -->
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.16.4-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -219,7 +219,7 @@
         <dependency>
             <groupId>io.papermc</groupId>
             <artifactId>paperlib</artifactId>
-            <version>1.0.8-SNAPSHOT</version>
+            <version>1.0.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -261,7 +261,12 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>mineverse.Aust1n46.chat</groupId>
+            <artifactId>VentureChat</artifactId>
+            <version>3.7.1</version>
+            <scope>provided</scope>
+        </dependency>
         <!--    Test frameworks    -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
