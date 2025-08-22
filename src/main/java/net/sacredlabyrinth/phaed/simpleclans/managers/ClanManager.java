@@ -604,7 +604,7 @@ public final class ClanManager {
             }
         }
 
-        if (out.length() == 0) {
+        if (out.isEmpty()) {
             out = lang("none", player);
         }
 
@@ -675,7 +675,7 @@ public final class ClanManager {
             out += ChatColor.WHITE + lang("weapon.A", player) + headColor + count;
         }
 
-        if (out.length() == 0) {
+        if (out.isEmpty()) {
             out = lang("none", player);
         }
 
