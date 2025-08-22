@@ -37,7 +37,7 @@ description: null
 * `allow-reset-kdr` -
 * `rejoin-cooldown` -
 * `rejoin-cooldown-enabled` -
-* `rejoin-cooldown-global` -
+* `rejoin-cooldown-global` - If enabled, the rejoin cooldown applies to all clans globally, not just the clan the player left.
 * `min-to-verify` - The clan must have this amount of members to get verified \(moderators can bypass this\)
 * `ranking-type` - Valid options: ORDINAL and DENSE
   * `DENSE`: if players have the same KDR, they will have the same rank position. Ex.: 12234
