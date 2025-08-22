@@ -943,15 +943,15 @@ public final class ClanManager {
             return 0L;
         }
 
-        final var resignTimes = cp.getResignTimes().values();
-        if (resignTimes == null || resignTimes.isEmpty()) {
+        final Map<String, Long> resignTimesMap = cp.getResignTimes();
+        if (resignTimesMap.isEmpty()) {
             return 0L;
         }
 
         final Instant now = Instant.now();
 
         // Longest remaining time among all resignations
-        final long maxRemaining = resignTimes.stream()
+        final long maxRemaining = resignTimesMap.values().stream()
             .mapToLong(resignMs -> {
                 final Instant resignAt = Instant.ofEpochMilli(resignMs);
                 final long minutesPassed = Duration.between(resignAt, now).toMinutes();
