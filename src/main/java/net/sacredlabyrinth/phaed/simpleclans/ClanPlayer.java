@@ -600,6 +600,7 @@ public class ClanPlayer implements Serializable, Comparable<ClanPlayer> {
      *
      * @return the resign times
      */
+    @NotNull
     public Map<String, Long> getResignTimes() {
         return resignTimes;
     }

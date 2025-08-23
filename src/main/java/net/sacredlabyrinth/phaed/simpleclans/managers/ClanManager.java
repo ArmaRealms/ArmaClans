@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.MessageFormat;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,6 +67,7 @@ import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.Con
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_UNIQUE_TAX_ON_REGROUP;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ECONOMY_VERIFICATION_PRICE;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.ENABLE_REJOIN_COOLDOWN;
+import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.GLOBAL_REJOIN_COOLDOWN;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.KDR_DELAY_BETWEEN_KILLS;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.PAGE_HEADINGS_COLOR;
 import static net.sacredlabyrinth.phaed.simpleclans.managers.SettingsManager.ConfigField.REJOIN_COOLDOWN;
@@ -635,7 +638,7 @@ public final class ClanManager {
             }
         }
 
-        if (out.length() == 0) {
+        if (out.isEmpty()) {
             out = lang("none", player);
         }
 
@@ -706,7 +709,7 @@ public final class ClanManager {
             out += ChatColor.WHITE + lang("weapon.A", player) + headColor + count;
         }
 
-        if (out.length() == 0) {
+        if (out.isEmpty()) {
             out = lang("none", player);
         }
 
@@ -942,17 +945,56 @@ public final class ClanManager {
 
     public long getMinutesBeforeRejoin(@NotNull final ClanPlayer cp, @NotNull final Clan clan) {
         final SettingsManager settings = plugin.getSettingsManager();
-        if (settings.is(ENABLE_REJOIN_COOLDOWN)) {
-            final Long resign = cp.getResignTime(clan.getTag());
-            if (resign != null) {
-                final long timePassed = Instant.ofEpochMilli(resign).until(Instant.now(), ChronoUnit.MINUTES);
-                final int cooldown = settings.getInt(REJOIN_COOLDOWN);
-                if (timePassed < cooldown) {
-                    return cooldown - timePassed;
-                }
+        if (!settings.is(ENABLE_REJOIN_COOLDOWN)) {
+            return 0L;
+        }
+        if (settings.is(GLOBAL_REJOIN_COOLDOWN)) {
+            return getMinutesBeforeAction(cp);
+        }
+        final Long resign = cp.getResignTime(clan.getTag());
+        if (resign != null) {
+            final long timePassed = Instant.ofEpochMilli(resign).until(Instant.now(), ChronoUnit.MINUTES);
+            final int cooldown = settings.getInt(REJOIN_COOLDOWN);
+            if (timePassed < cooldown) {
+                return cooldown - timePassed;
             }
         }
-        return 0;
+        return 0L;
+    }
+
+    /**
+     * Returns the minutes remaining before a player can perform restricted actions
+     * based on the rejoin cooldown across all previous clans.
+     */
+    public long getMinutesBeforeAction(@NotNull final ClanPlayer cp) {
+        final SettingsManager settings = plugin.getSettingsManager();
+        if (!settings.is(ENABLE_REJOIN_COOLDOWN) || !settings.is(GLOBAL_REJOIN_COOLDOWN)) {
+            return 0L;
+        }
+
+        final int cooldown = settings.getInt(REJOIN_COOLDOWN);
+        if (cooldown <= 0) {
+            return 0L;
+        }
+
+        final Map<String, Long> resignTimesMap = cp.getResignTimes();
+        if (resignTimesMap.isEmpty()) {
+            return 0L;
+        }
+
+        final Instant now = Instant.now();
+
+        // Longest remaining time among all resignations
+        final long maxRemaining = resignTimesMap.values().stream()
+            .mapToLong(resignMs -> {
+                final Instant resignAt = Instant.ofEpochMilli(resignMs);
+                final long minutesPassed = Duration.between(resignAt, now).toMinutes();
+                return cooldown - minutesPassed;
+            })
+            .max()
+            .orElse(0L);
+
+        return Math.max(0L, maxRemaining);
     }
 
     /**

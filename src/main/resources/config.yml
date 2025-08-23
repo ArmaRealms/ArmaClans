@@ -50,6 +50,7 @@ settings:
     allow-reset-kdr: false
     rejoin-cooldown: 60
     rejoin-cooldown-enabled: false
+    rejoin-cooldown-global: false
     ranking-type: "DENSE"
     list-default-order-by: kdr
     lore-length: 36
