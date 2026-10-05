@@ -61,7 +61,7 @@ public class CoordsFrame extends SCFrame {
 							lang("gui.coords.player.lore.world",getViewer(), Objects.requireNonNull(cpLoc.getWorld()).getName())),
 					XMaterial.PLAYER_HEAD, slot);
 			OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(cp.getUniqueId());
-			Components.setOwningPlayer(c.getItem(), offlinePlayer);
+			//Components.setOwningPlayer(c.getItem(), offlinePlayer);
 			c.setListener(ClickType.LEFT, () -> InventoryDrawer.open(new PlayerDetailsFrame(getViewer(), this, offlinePlayer)));
 			c.setLorePermission(RankPermission.COORDS);
 			add(c);

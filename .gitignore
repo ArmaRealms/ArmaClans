@@ -1,9 +1,9 @@
 /target/
 /.idea/
 /bin/
+${env.TEST_SERVER}/
 /.classpath
 /.project
-*.jar
 .settings
 .factorypath
 SimpleClans.iml
