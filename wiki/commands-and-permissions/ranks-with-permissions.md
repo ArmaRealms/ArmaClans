@@ -14,6 +14,8 @@ Each clan has its own order. Position **1** is the highest custom rank. Real lea
 
 Leaders can open **Ranks** in their clan menu to create and reorder ranks. Shift + left-click moves a rank up. Shift + right-click moves it down. A newly created rank starts below all existing custom ranks. The order is saved with the clan.
 
+New clans receive their starting hierarchy from the order of `clan.starter-ranks` in the server's `config.yml`, highest first. The bundled order is Ambassador, Treasurer, then Recruit. Recruit is the default rank for joining members. Editing the starter list on an existing installation applies to clans created after the edit.
+
 Members with `kick`, `rank.assign` or `rank.unassign` and the corresponding server permission can act only on another member strictly below them. When assigning a rank, the destination rank must also be strictly below the issuer. Rank creation, deletion, editing and reordering require real leadership. Existing staff commands retain their own permissions.
 
 On upgrade, ranks without positions receive their initial order from the clan's stored rank list, highest first. If a list contains both positioned and legacy ranks, legacy ranks follow the positioned ranks in stored order. The positions are written the next time the clan is saved. Member assignments, the default rank and existing permissions are preserved. Delegation permissions must be granted explicitly.
