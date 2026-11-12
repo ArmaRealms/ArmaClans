@@ -471,6 +471,7 @@ public final class RequestManager {
      */
     public void ask(final Request req) {
         String message = lang("request.message", req.getClan().getColorTag(), req.getMsg());
+        String commandPrefix = "/" + plugin.getSettingsManager().getString(COMMANDS_CLAN) + " ";
         ArrayList<Player> recipients = new ArrayList<>();
         if (req.getType() == ClanRequest.INVITE) {
             recipients.add(Bukkit.getPlayerExact(req.getTarget()));
@@ -484,7 +485,7 @@ public final class RequestManager {
 
         for (Player recipient : recipients) {
             if (recipient != null) {
-                recipient.spigot().sendMessage(ChatUtils.toBaseComponents(recipient, message));
+                recipient.spigot().sendMessage(ChatUtils.toBaseComponents(recipient, message, commandPrefix));
             }
         }
 

@@ -86,6 +86,12 @@ public class ChatUtils {
     }
 
     public static BaseComponent[] toBaseComponents(@Nullable CommandSender receiver, @NotNull String text) {
+        return toBaseComponents(receiver, text, "/");
+    }
+
+    /** Renders clickable placeholders as commands starting with the supplied prefix. */
+    public static BaseComponent[] toBaseComponents(@Nullable CommandSender receiver, @NotNull String text,
+                                                    @NotNull String commandPrefix) {
         ComponentBuilder builder = new ComponentBuilder("");
         ArrayList<String> placeholders = new ArrayList<>();
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(text);
@@ -98,21 +104,22 @@ public class ChatUtils {
             if (i >= placeholders.size()) {
                 continue;
             }
-            appendPlaceholder(receiver, builder, placeholders.get(i));
+            appendPlaceholder(receiver, builder, placeholders.get(i), commandPrefix);
         }
 
         return builder.create();
     }
 
     @SuppressWarnings("deprecation")
-    private static void appendPlaceholder(@Nullable CommandSender receiver, ComponentBuilder builder, String placeholder) {
+    private static void appendPlaceholder(@Nullable CommandSender receiver, ComponentBuilder builder,
+                                          String placeholder, String commandPrefix) {
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(placeholder);
         if (!matcher.find()) {
             return;
         }
         placeholder = matcher.group(2);
         builder.retain(FormatRetention.FORMATTING).append(lang("clickable." + placeholder, receiver))
-                .event(new ClickEvent(RUN_COMMAND, "/" + placeholder))
+                .event(new ClickEvent(RUN_COMMAND, commandPrefix + placeholder))
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(
                         (lang("hover.click.to." + placeholder, receiver)))));
     }

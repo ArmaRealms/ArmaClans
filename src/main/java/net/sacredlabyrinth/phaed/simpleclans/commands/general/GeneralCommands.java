@@ -247,7 +247,7 @@ public class GeneralCommands extends BaseCommand {
         }
     }
 
-    @CommandAlias("%accept")
+    @Subcommand("%accept")
     @Description("{@@command.description.accept}")
     @Conditions("can_vote")
     public void accept(final Player player, final ClanPlayer cp) {
@@ -258,7 +258,7 @@ public class GeneralCommands extends BaseCommand {
         requestManager.accept(cp);
     }
 
-    @CommandAlias("%deny")
+    @Subcommand("%deny")
     @Description("{@@command.description.deny}")
     @Conditions("can_vote")
     public void deny(final Player player, final ClanPlayer cp) {
