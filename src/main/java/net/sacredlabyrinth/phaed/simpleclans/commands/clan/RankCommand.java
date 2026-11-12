@@ -15,8 +15,8 @@ import net.sacredlabyrinth.phaed.simpleclans.utils.ChatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +26,7 @@ import static org.bukkit.ChatColor.RED;
 
 @CommandAlias("%clan")
 @Subcommand("%rank")
-@Conditions("%basic_conditions|verified|leader")
+@Conditions("%basic_conditions|verified")
 public class RankCommand extends BaseCommand {
 
     @Dependency
@@ -40,45 +40,65 @@ public class RankCommand extends BaseCommand {
     @CommandPermission("simpleclans.leader.rank.assign")
     @CommandCompletion("@clan_members @ranks")
     @Description("{@@command.description.rank.assign}")
-    public void assign(ClanPlayer player,
+    public void assign(Player player,
+                       ClanPlayer actor,
                        Clan clan,
                        @Name("member") @Conditions("same_clan") ClanPlayerInput member,
                        @Name("rank") Rank rank) {
-        ClanPlayer memberInput = member.getClanPlayer();
-
-        PlayerRankUpdateEvent event = new PlayerRankUpdateEvent(player, memberInput, clan, clan.getRank(memberInput.getRankId()), rank);
-        Bukkit.getPluginManager().callEvent(event);
-
-        if (event.isCancelled()) return;
-
-        if (memberInput.getRankId().equals(rank.getName())) {
-            ChatBlock.sendMessage(player, lang("player.already.has.that.rank", player));
-            return;
-        }
-
-        memberInput.setRank(rank.getName());
-        storage.updateClanPlayer(memberInput);
-        ChatBlock.sendMessage(player, AQUA + lang("player.rank.changed", player));
+        updateRank(player, actor, clan, member.getClanPlayer(), rank, RankPermission.RANK_ASSIGN);
     }
 
     @Subcommand("%unassign")
     @CommandPermission("simpleclans.leader.rank.unassign")
     @CommandCompletion("@clan_members")
     @Description("{@@command.description.rank.unassign}")
-    public void unassign(ClanPlayer player, Clan clan, @Conditions("same_clan") @Name("member") ClanPlayerInput cp) {
-        ClanPlayer memberInput = cp.getClanPlayer();
+    public void unassign(Player player, ClanPlayer actor, Clan clan,
+                         @Conditions("same_clan") @Name("member") ClanPlayerInput member) {
+        updateRank(player, actor, clan, member.getClanPlayer(), null, RankPermission.RANK_UNASSIGN);
+    }
 
-        PlayerRankUpdateEvent event = new PlayerRankUpdateEvent(player, memberInput, clan, clan.getRank(memberInput.getRankId()), null);
-        Bukkit.getPluginManager().callEvent(event);
+    private void updateRank(Player player, ClanPlayer actor, Clan clan, ClanPlayer member, @Nullable Rank rank,
+                            RankPermission permission) {
+        if (!canUpdateRank(player, actor, clan, member, rank, permission)) {
+            return;
+        }
+        Rank oldRank = clan.getRank(member.getRankId());
+        if (!new PlayerRankUpdateEvent(actor, member, clan, oldRank, rank).callEvent()) {
+            ChatBlock.sendMessage(player, RED + lang("error.event.cancelled", player));
+            return;
+        }
+        if (!canUpdateRank(player, actor, clan, member, rank, permission)) {
+            return;
+        }
+        if (rank != null && member.getRankId().equals(rank.getName())) {
+            ChatBlock.sendMessage(player, lang("player.already.has.that.rank", player));
+            return;
+        }
 
-        if (event.isCancelled()) return;
+        member.setRank(rank == null ? null : rank.getName());
+        storage.updateClanPlayer(member);
+        String message = rank == null ? "player.unassigned.from.rank" : "player.rank.changed";
+        ChatBlock.sendMessage(player, AQUA + lang(message, player));
+    }
 
-        memberInput.setRank(null);
-        storage.updateClanPlayer(memberInput);
-        ChatBlock.sendMessage(player, AQUA + lang("player.unassigned.from.rank", player));
+    private boolean canUpdateRank(Player player, ClanPlayer actor, Clan clan, ClanPlayer member, @Nullable Rank rank,
+                                  RankPermission permission) {
+        if (!clan.isVerified()) {
+            ChatBlock.sendMessage(player, RED + lang("clan.is.not.verified", player));
+            return false;
+        }
+        if (!permissions.canManageClanMember(player, actor, clan, member, permission)) {
+            return false;
+        }
+        if (rank != null && !clan.isAbove(actor, rank)) {
+            ChatBlock.sendMessage(player, RED + lang("rank.hierarchy.destination.not.below", player));
+            return false;
+        }
+        return true;
     }
 
     @Subcommand("%create")
+    @Conditions("leader")
     @CommandPermission("simpleclans.leader.rank.create")
     @Description("{@@command.description.rank.create}")
     public void create(Player player, Clan clan) {
@@ -89,14 +109,19 @@ public class RankCommand extends BaseCommand {
     }
 
     @Subcommand("%delete")
+    @Conditions("leader")
     @CommandPermission("simpleclans.leader.rank.delete")
     @CommandCompletion("@ranks")
     @Description("{@@command.description.rank.delete}")
     public void delete(Player player, Clan clan, @Name("rank") Rank rank) {
+        if (!permissions.canEditClanRanks(player, clan, "simpleclans.leader.rank.delete")) {
+            return;
+        }
         DeleteRankEvent event = new DeleteRankEvent(player, clan, rank);
         Bukkit.getServer().getPluginManager().callEvent(event);
 
-        if (!event.isCancelled()) {
+        if (!event.isCancelled() && permissions.canEditClanRanks(player, clan, "simpleclans.leader.rank.delete")
+                && clan.getRank(rank.getName()) == rank) {
             clan.deleteRank(rank.getName());
             storage.updateClan(clan, true);
             ChatBlock.sendMessage(player, AQUA + lang("rank.0.deleted", player, rank.getDisplayName()));
@@ -104,27 +129,56 @@ public class RankCommand extends BaseCommand {
     }
 
     @Subcommand("%list")
+    @Conditions("leader")
     @CommandPermission("simpleclans.leader.rank.list")
     @Description("{@@command.description.rank.list}")
     public void list(Player player, Clan clan) {
-        List<Rank> ranks = clan.getRanks();
+        List<Rank> ranks = clan.getRanksInOrder();
 
         if (ranks.isEmpty()) {
             ChatBlock.sendMessage(player, RED + lang("no.ranks", player));
             return;
         }
 
-        ranks.sort(Comparator.reverseOrder());
         ChatBlock.sendMessage(player, AQUA + lang("clans.ranks", player));
-        int count = 1;
         for (Rank rank : ranks) {
-            ChatBlock.sendMessage(player, AQUA + lang("ranks.list.item", player, count,
+            ChatBlock.sendMessage(player, AQUA + lang("ranks.list.item", player, rank.getPosition(),
                     ChatUtils.parseColors(rank.getDisplayName()) + AQUA, rank.getName()));
-            count++;
         }
     }
 
+    @Subcommand("%moveup")
+    @Conditions("leader")
+    @CommandPermission("simpleclans.leader.rank.reorder")
+    @CommandCompletion("@ranks")
+    @Description("{@@command.description.rank.moveup}")
+    public void moveUp(Player player, Clan clan, @Name("rank") Rank rank) {
+        moveRank(player, clan, rank, true);
+    }
+
+    @Subcommand("%movedown")
+    @Conditions("leader")
+    @CommandPermission("simpleclans.leader.rank.reorder")
+    @CommandCompletion("@ranks")
+    @Description("{@@command.description.rank.movedown}")
+    public void moveDown(Player player, Clan clan, @Name("rank") Rank rank) {
+        moveRank(player, clan, rank, false);
+    }
+
+    private void moveRank(Player player, Clan clan, Rank rank, boolean up) {
+        if (!permissions.canEditClanRanks(player, clan, "simpleclans.leader.rank.reorder")) {
+            return;
+        }
+        if (!clan.moveRank(rank, up)) {
+            ChatBlock.sendMessage(player, RED + lang("rank.hierarchy.cannot.move", player));
+            return;
+        }
+        storage.updateClan(clan);
+        ChatBlock.sendMessage(player, AQUA + lang("rank.hierarchy.moved", player, rank.getDisplayName(), rank.getPosition()));
+    }
+
     @Subcommand("%setdisplayname")
+    @Conditions("leader")
     @CommandPermission("simpleclans.leader.rank.setdisplayname")
     @CommandCompletion("@ranks @nothing")
     @Description("{@@command.description.rank.setdisplayname}")
@@ -139,6 +193,7 @@ public class RankCommand extends BaseCommand {
     }
 
     @Subcommand("%setdefault")
+    @Conditions("leader")
     @CommandPermission("simpleclans.leader.rank.setdefault")
     @CommandCompletion("@ranks")
     @Description("{@@command.description.rank.setdefault}")
@@ -148,6 +203,7 @@ public class RankCommand extends BaseCommand {
     }
 
     @Subcommand("%removedefault")
+    @Conditions("leader")
     @CommandPermission("simpleclans.leader.rank.removedefault")
     @Description("{@@command.description.rank.removedefault}")
     public void removeDefault(Player player, Clan clan) {
@@ -156,6 +212,7 @@ public class RankCommand extends BaseCommand {
     }
 
     @Subcommand("%permissions")
+    @Conditions("leader")
     public class PermissionsCommand extends BaseCommand {
         private final String validPermissionsToMessage = String.join(",", Helper.fromPermissionArray());
 

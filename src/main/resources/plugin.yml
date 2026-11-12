@@ -207,6 +207,8 @@ permissions:
     description: Can assign a rank to a user
   simpleclans.leader.rank.unassign:
     description: Can unassign a player from a rank
+  simpleclans.leader.rank.reorder:
+    description: Can change the order of clan ranks
   simpleclans.leader.rank.delete:
     description: Can delete a rank
   simpleclans.leader.rank.permissions.available:
@@ -353,6 +355,7 @@ permissions:
       simpleclans.leader.rank.assign: true
       simpleclans.leader.rank.unassign: true
       simpleclans.leader.rank.delete: true
+      simpleclans.leader.rank.reorder: true
       simpleclans.leader.rank.permissions.available: true
       simpleclans.leader.rank.permissions.add: true
       simpleclans.leader.rank.permissions.remove: true

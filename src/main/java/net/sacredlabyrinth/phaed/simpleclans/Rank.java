@@ -14,6 +14,7 @@ public class Rank implements Comparable<Rank> {
 	private String name;
 	private String displayName;
 	private Set<String> permissions;
+	private int position;
 	
 	public Rank(String name) {
 		setName(name);
@@ -98,6 +99,17 @@ public class Rank implements Comparable<Rank> {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * @return the position within the clan, where 1 is the highest custom rank
+	 */
+	public int getPosition() {
+		return position;
+	}
+
+	void setPosition(int position) {
+		this.position = position;
 	}
 
 	@Override

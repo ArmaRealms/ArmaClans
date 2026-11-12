@@ -229,7 +229,7 @@ public class SCCommandManager extends PaperCommandManager {
                 "clanff", "demote", "promote", "untrust", "trust", "purge", "fee", "bank", "kick", "invite", "toggle",
                 "modtag", "bb", "display", "clear", "rival", "ally", "add", "remove", "stats", "coords", "vitals", "rivalries",
                 "alliances", "leaderboard", "allow", "block", "auto", "check", "assign", "unassign", "delete", "me",
-                "setdisplayname", "permissions", "tag", "deposit", "withdraw", "set", "status", "tp", "all", "everyone",
+                "setdisplayname", "moveup", "movedown", "permissions", "tag", "deposit", "withdraw", "set", "status", "tp", "all", "everyone",
                 "lookup", "roster", "profile", "list", "create", "description", "start", "end", "admin", "help", "mod",
                 "setdefault", "removedefault", "land", "break", "interact", "place_block", "damage", "interact_entity",
                 "container", "permanent", "take", "give", "join", "leave", "mute", "confirm", "balance", "discord", "rename", "locale");
