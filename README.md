@@ -46,6 +46,16 @@ Full featured clan system for PVP Minecraft Servers!
 
 #### Developers
 
+This branch targets Paper 26.2 and requires Java 25. Install the bundled
+[VentureChat 3.8.0 release](https://github.com/Aust1n46/VentureChat/releases/tag/v3.8.0)
+into your local Maven repository before building from a fresh checkout.
+
+```sh
+./mvnw -B org.apache.maven.plugins:maven-install-plugin:3.2.0:install-file -Dfile=libs/VentureChat-3.8.0.jar -DgroupId=mineverse.Aust1n46.chat -DartifactId=VentureChat -Dversion=3.8.0 -Dpackaging=jar
+./mvnw -B clean verify
+```
+
+
 Including SimpleClans with Maven:
 ```xml
 <repositories>

@@ -2,10 +2,12 @@
 
 # This is a java project
 language: java
+dist: noble
 
-script: mvn install
+install: ./mvnw -B org.apache.maven.plugins:maven-install-plugin:3.2.0:install-file -Dfile=libs/VentureChat-3.8.0.jar -DgroupId=mineverse.Aust1n46.chat -DartifactId=VentureChat -Dversion=3.8.0 -Dpackaging=jar
+script: ./mvnw -B verify
 
-jdk: [openjdk8]
+jdk: [openjdk25]
 
 # if one build failed, exit testing
 matrix:

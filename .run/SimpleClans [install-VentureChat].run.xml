@@ -11,11 +11,11 @@
           </option>
           <option name="goals">
             <list>
-              <option value="install:install-file" />
-              <option value="-Dfile=libs/VentureChat-3.7.1.jar" />
+              <option value="org.apache.maven.plugins:maven-install-plugin:3.2.0:install-file" />
+              <option value="-Dfile=libs/VentureChat-3.8.0.jar" />
               <option value="-DgroupId=mineverse.Aust1n46.chat" />
               <option value="-DartifactId=VentureChat" />
-              <option value="-Dversion=3.7.1" />
+              <option value="-Dversion=3.8.0" />
               <option value="-Dpackaging=jar" />
             </list>
           </option>

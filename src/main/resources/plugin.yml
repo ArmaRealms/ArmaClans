@@ -11,7 +11,7 @@ softdepend:
 loadbefore:
   - GriefPrevention
   - PlotSquared
-api-version: '1.13'
+api-version: '26.2'
 authors:
   - Phaed
   - RoinujNosde

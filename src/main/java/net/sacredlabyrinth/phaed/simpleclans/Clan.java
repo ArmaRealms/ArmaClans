@@ -1,5 +1,7 @@
 package net.sacredlabyrinth.phaed.simpleclans;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -17,7 +19,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -1749,11 +1750,16 @@ public class Clan implements Serializable, Comparable<Clan> {
         banner.setAmount(1);
         ItemMeta itemMeta = banner.getItemMeta();
         if (itemMeta != null) {
-            // hides the banner patterns from the lore (I don't know why it's called POTION_EFFECTS)
-            itemMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
             itemMeta.setLore(null);
             itemMeta.setDisplayName(null);
             banner.setItemMeta(itemMeta);
+
+            TooltipDisplay currentTooltip = banner.getData(DataComponentTypes.TOOLTIP_DISPLAY);
+            TooltipDisplay.Builder tooltip = TooltipDisplay.tooltipDisplay();
+            if (currentTooltip != null) {
+                tooltip.hideTooltip(currentTooltip.hideTooltip()).hiddenComponents(currentTooltip.hiddenComponents());
+            }
+            banner.setData(DataComponentTypes.TOOLTIP_DISPLAY, tooltip.addHiddenComponents(DataComponentTypes.BANNER_PATTERNS));
         }
         this.banner = banner;
     }

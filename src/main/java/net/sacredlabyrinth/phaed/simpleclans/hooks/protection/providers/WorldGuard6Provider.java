@@ -1,9 +1,11 @@
 package net.sacredlabyrinth.phaed.simpleclans.hooks.protection.providers;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.sacredlabyrinth.phaed.simpleclans.hooks.protection.Coordinate;
 import net.sacredlabyrinth.phaed.simpleclans.hooks.protection.Land;
 import net.sacredlabyrinth.phaed.simpleclans.hooks.protection.ProtectionProvider;
@@ -15,71 +17,31 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 @SuppressWarnings("unused")
 public class WorldGuard6Provider implements ProtectionProvider {
 
-    private WorldGuardPlugin worldGuard;
-    private Method getRegionManager;
-    private Method getApplicableRegions;
-    private Method getPoints;
-    private Method getX;
-    private Method getZ;
+    private RegionContainer regionContainer;
 
-    @SuppressWarnings("JavaReflectionMemberAccess")
     @Override
-    public void setup() throws NoSuchMethodException, ClassNotFoundException {
-        worldGuard = WorldGuardPlugin.inst();
-        getRegionManager = worldGuard.getClass().getMethod("getRegionManager", World.class);
-        getApplicableRegions = RegionManager.class.getMethod("getApplicableRegions", Location.class);
-        getPoints = ProtectedRegion.class.getMethod("getPoints");
-        Class<?> blockVector = Class.forName("com.sk89q.worldedit.BlockVector2");
-        getX = blockVector.getMethod("getX");
-        getZ = blockVector.getMethod("getZ");
+    public void setup() {
+        regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
     }
 
     private @Nullable RegionManager getRegionManager(@Nullable World world) {
-        if (world != null) {
-            try {
-                return (RegionManager) getRegionManager.invoke(worldGuard, world);
-            } catch (IllegalAccessException | InvocationTargetException ignored) {
-            }
+        if (world == null) {
+            return null;
         }
-        return null;
-    }
-
-    private Set<ProtectedRegion> getApplicableRegions(RegionManager regionManager, Location location) {
-        try {
-            return ((ApplicableRegionSet) getApplicableRegions.invoke(regionManager, location)).getRegions();
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            return Collections.emptySet();
-        }
+        return regionContainer.get(BukkitAdapter.adapt(world));
     }
 
     @NotNull
     private Land getLand(ProtectedRegion region) {
-        List<Coordinate> coordinates = getCoordinates(region);
-
+        List<Coordinate> coordinates = region.getPoints().stream()
+                .map(point -> new Coordinate(point.x(), point.z()))
+                .toList();
         return new Land(getIdPrefix() + region.getId(), region.getOwners().getUniqueIds(), coordinates);
-    }
-
-    @NotNull
-    private List<Coordinate> getCoordinates(ProtectedRegion region) {
-        List<Coordinate> coordinates = new ArrayList<>();
-        try {
-            List<?> points = (List<?>) getPoints.invoke(region);
-            for (Object point : points) {
-                double x = (double) getX.invoke(point);
-                double z = (double) getZ.invoke(point);
-                coordinates.add(new Coordinate(x, z));
-            }
-        } catch (ReflectiveOperationException ex) {
-            ex.printStackTrace();
-        }
-        return coordinates;
     }
 
     @Override
@@ -88,7 +50,8 @@ public class WorldGuard6Provider implements ProtectionProvider {
         RegionManager regionManager = getRegionManager(location.getWorld());
 
         if (regionManager != null) {
-            for (ProtectedRegion region : getApplicableRegions(regionManager, location)) {
+            BlockVector3 position = BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            for (ProtectedRegion region : regionManager.getApplicableRegions(position)) {
                 lands.add(getLand(region));
             }
         }

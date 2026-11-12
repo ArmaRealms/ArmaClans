@@ -7,15 +7,19 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 16
-      uses: actions/setup-java@v4
+    - uses: actions/checkout@v7.0.1
+    - name: Set up JDK 25
+      uses: actions/setup-java@v6.2.0
       with:
-        java-version: 16
+        java-version: 25
         cache: 'maven'
         distribution: 'temurin'
+    - name: Install VentureChat
+      run: ./mvnw -B org.apache.maven.plugins:maven-install-plugin:3.2.0:install-file -Dfile=libs/VentureChat-3.8.0.jar -DgroupId=mineverse.Aust1n46.chat -DartifactId=VentureChat -Dversion=3.8.0 -Dpackaging=jar
     - name: Build with Maven
-      run: ./mvnw -B package --file pom.xml
+      run: |
+        ./mvnw -B package --file pom.xml
+        cp target/SimpleClans-*.jar target/SimpleClans.jar
     - name: Upload artifact
       uses: RubixDev/modrinth-upload@v1.0.0
       with:
@@ -25,7 +29,7 @@ jobs:
         changelog: ${{ github.event.release.body }}
         name: ${{ github.event.release.tag_name }}
         version: ${{ github.event.release.tag_name }}
-        game_versions: 1.21,1.20,1.19,1.18,1.17,1.16,1.15,1.14,1.13,1.12,1.11,1.10,1.9,1.8
+        game_versions: '26.2'
         release_type: release
-        loaders: spigot
+        loaders: paper
         featured: true

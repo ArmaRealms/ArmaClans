@@ -15,24 +15,24 @@ jobs:
       fail-fast: true
       max-parallel: 4
       matrix:
-        java-version: [ 21 ]
+        java-version: [ 25 ]
     runs-on: ubuntu-latest
     name: Java ${{ matrix.java-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
       - name: "Set up JDK ${{ matrix.java-version }}"
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6.2.0
         with:
           java-version: "${{ matrix.java-version }}"
           distribution: 'temurin'
           cache: 'maven'
       - name: Install VentureChat
-        run: mvn install:install-file -Dfile=libs/VentureChat-3.7.1.jar -DgroupId=mineverse.Aust1n46.chat -DartifactId=VentureChat -Dversion=3.7.1 -Dpackaging=jar -f pom.xml
+        run: ./mvnw -B org.apache.maven.plugins:maven-install-plugin:3.2.0:install-file -Dfile=libs/VentureChat-3.8.0.jar -DgroupId=mineverse.Aust1n46.chat -DartifactId=VentureChat -Dversion=3.8.0 -Dpackaging=jar
       - name: Build with Maven
         run: ./mvnw -B -U package --file pom.xml
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: SimpleClans
           path: target/SimpleClans-*.jar
