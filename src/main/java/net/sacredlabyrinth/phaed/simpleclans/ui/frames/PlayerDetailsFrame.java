@@ -57,7 +57,7 @@ public class PlayerDetailsFrame extends SCFrame {
 	private void addKick() {
 		SCComponent kick = new SCComponentImpl(lang("gui.playerdetails.kick.title",getViewer()), null, XMaterial.RED_WOOL,
 				28);
-		kick.setListener(ClickType.LEFT, () -> InventoryController.runSubcommand(getViewer(), "kick", true, subjectName));
+		kick.setListener(ClickType.LEFT, () -> InventoryController.runMemberSubcommand(getViewer(), clan, subject.getUniqueId(), "kick"));
 		kick.setConfirmationRequired(ClickType.LEFT);
 		kick.setPermission(ClickType.LEFT, RankPermission.KICK);
 		add(kick);
@@ -87,12 +87,12 @@ public class PlayerDetailsFrame extends SCFrame {
 				XMaterial.FEATHER, 32);
 		assignUnassign.setConfirmationRequired(ClickType.RIGHT);
 		assignUnassign.setListener(ClickType.RIGHT,
-				() -> InventoryController.runSubcommand(getViewer(), "rank unassign", true, subjectName));
-		assignUnassign.setPermission(ClickType.RIGHT, "simpleclans.leader.rank.unassign");
+				() -> InventoryController.runMemberSubcommand(getViewer(), clan, subject.getUniqueId(), "rank unassign"));
+		assignUnassign.setPermission(ClickType.RIGHT, RankPermission.RANK_UNASSIGN);
 		assignUnassign.setListener(ClickType.LEFT,
 				() -> InventoryDrawer.open(new RanksFrame(this, getViewer(), clan, subject)));
 		add(assignUnassign);
-		assignUnassign.setPermission(ClickType.LEFT, "simpleclans.leader.rank.assign");
+		assignUnassign.setPermission(ClickType.LEFT, RankPermission.RANK_ASSIGN);
 	}
 
 	private void addTrustUntrust() {
@@ -126,7 +126,7 @@ public class PlayerDetailsFrame extends SCFrame {
 	}
 
 	private boolean isSameClan() {
-		return clan != null && clan.isMember(subject.getUniqueId());
+		return clan != null && clan.isMember(subject.getUniqueId()) && clan.isMember(getViewer().getUniqueId());
 	}
 
 }

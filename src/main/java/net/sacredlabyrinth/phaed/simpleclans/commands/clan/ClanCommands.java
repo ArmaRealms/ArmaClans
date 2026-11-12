@@ -15,6 +15,7 @@ import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
 import net.sacredlabyrinth.phaed.simpleclans.Clan;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.Helper;
+import net.sacredlabyrinth.phaed.simpleclans.RankPermission;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanInput;
 import net.sacredlabyrinth.phaed.simpleclans.commands.ClanPlayerInput;
@@ -363,22 +364,18 @@ public class ClanCommands extends BaseCommand {
     @Subcommand("%kick")
     @CommandPermission("simpleclans.leader.kick")
     @CommandCompletion("@clan_members:hide_own")
-    @Conditions("rank:name=KICK")
     @Description("{@@command.description.kick}")
-    public void kick(@Conditions("clan_member") final Player sender,
+    public void kick(final Player sender, final ClanPlayer actor, final Clan clan,
                      @Conditions("same_clan") @Name("member") final ClanPlayerInput other) {
         final ClanPlayer clanPlayer = other.getClanPlayer();
-        if (sender.getUniqueId().equals(clanPlayer.getUniqueId())) {
-            ChatBlock.sendMessage(sender, RED + lang("you.cannot.kick.yourself", sender));
-            return;
-        }
-        final Clan clan = cm.getClanByPlayerUniqueId(sender.getUniqueId());
-        if (Objects.requireNonNull(clan).isLeader(clanPlayer.getUniqueId())) {
-            ChatBlock.sendMessage(sender, RED + lang("you.cannot.kick.another.leader", sender));
+        if (!permissions.canManageClanMember(sender, actor, clan, clanPlayer, RankPermission.KICK)) {
             return;
         }
         if (!new PrePlayerKickedClanEvent(clan, clanPlayer).callEvent()) {
             ChatBlock.sendMessage(sender, RED + lang("error.event.cancelled", sender));
+            return;
+        }
+        if (!permissions.canManageClanMember(sender, actor, clan, clanPlayer, RankPermission.KICK)) {
             return;
         }
         clan.addBb(sender.getName(), lang("has.been.kicked.by", clanPlayer.getName(), sender.getName(), sender));

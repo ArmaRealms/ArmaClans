@@ -1661,8 +1661,9 @@ public class Clan implements Serializable, Comparable<Clan> {
      * Creates a rank
      */
     public void createRank(String name) {
-        Rank rank = new Rank(name);
-        ranks.add(rank);
+        List<Rank> ordered = getRanksInOrder();
+        ordered.add(new Rank(name));
+        setRankOrder(ordered);
     }
 
     /**
@@ -1675,13 +1676,63 @@ public class Clan implements Serializable, Comparable<Clan> {
     }
 
     /**
+     * @return a snapshot of the ranks from highest to lowest authority
+     */
+    public List<Rank> getRanksInOrder() {
+        List<Rank> ordered = new ArrayList<>(ranks);
+        ordered.sort(Comparator.comparingInt(Clan::rankPosition));
+        return ordered;
+    }
+
+    /**
      * Sets the clan's ranks
      */
     public void setRanks(@Nullable List<Rank> ranks) {
-        if (ranks == null) {
-            ranks = new ArrayList<>();
+        List<Rank> ordered = ranks == null ? new ArrayList<>() : new ArrayList<>(ranks);
+        // Legacy ranks share a sort key so the saved list order breaks ties.
+        ordered.sort(Comparator.comparingInt(Clan::rankPosition));
+        setRankOrder(ordered);
+    }
+
+    private void setRankOrder(List<Rank> ordered) {
+        for (int i = 0; i < ordered.size(); i++) {
+            ordered.get(i).setPosition(i + 1);
         }
-        this.ranks = ranks;
+        ranks = ordered;
+    }
+
+    public boolean moveRank(Rank rank, boolean up) {
+        if (getRank(rank.getName()) != rank) {
+            return false;
+        }
+        List<Rank> ordered = getRanksInOrder();
+        int index = ordered.indexOf(rank);
+        int destination = index + (up ? -1 : 1);
+        if (destination < 0 || destination >= ordered.size()) {
+            return false;
+        }
+        Collections.swap(ordered, index, destination);
+        setRankOrder(ordered);
+        return true;
+    }
+
+    public boolean isAbove(ClanPlayer actor, ClanPlayer target) {
+        return actor.getClan() == this && target.getClan() == this
+                && !actor.getUniqueId().equals(target.getUniqueId())
+                && !target.isLeader() && authority(actor) < authority(target);
+    }
+
+    public boolean isAbove(ClanPlayer actor, Rank target) {
+        return actor.getClan() == this && getRank(target.getName()) == target
+                && target.getPosition() > 0 && authority(actor) < target.getPosition();
+    }
+
+    private int authority(ClanPlayer player) {
+        return player.isLeader() ? 0 : rankPosition(getRank(player.getRankId()));
+    }
+
+    private static int rankPosition(@Nullable Rank rank) {
+        return rank == null || rank.getPosition() <= 0 ? Integer.MAX_VALUE : rank.getPosition();
     }
 
     /**
@@ -1690,7 +1741,9 @@ public class Clan implements Serializable, Comparable<Clan> {
     public void deleteRank(String name) {
         Rank r = getRank(name);
         if (r != null) {
-            ranks.remove(r);
+            List<Rank> ordered = getRanksInOrder();
+            ordered.remove(r);
+            setRankOrder(ordered);
 
             getMembers().forEach(cp -> {
                 if (Objects.equals(cp.getRankId(), r.getName())) {

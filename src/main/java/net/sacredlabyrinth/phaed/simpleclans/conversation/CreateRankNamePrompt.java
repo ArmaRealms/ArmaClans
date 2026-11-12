@@ -30,14 +30,17 @@ public class CreateRankNamePrompt extends StringPrompt {
         Clan clan = (Clan) context.getSessionData("clan");
         if (clan == null || plugin == null) return END_OF_CONVERSATION;
         if (input == null) return this;
+        if (!plugin.getPermissionsManager().canEditClanRanks(player, clan, "simpleclans.leader.rank.create")) {
+            return END_OF_CONVERSATION;
+        }
 
         String rank = input.toLowerCase().replace(" ", "_");
         PreCreateRankEvent event = new PreCreateRankEvent(player, clan, rank);
         Bukkit.getServer().getPluginManager().callEvent(event);
         rank = event.getRankName();
 
-        if (event.isCancelled()) {
-            return null;
+        if (event.isCancelled() || !plugin.getPermissionsManager().canEditClanRanks(player, clan, "simpleclans.leader.rank.create")) {
+            return END_OF_CONVERSATION;
         }
 
         if (clan.hasRank(rank)) {

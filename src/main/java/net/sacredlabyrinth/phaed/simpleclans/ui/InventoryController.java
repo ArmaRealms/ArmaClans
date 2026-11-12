@@ -1,5 +1,7 @@
 package net.sacredlabyrinth.phaed.simpleclans.ui;
 
+import net.sacredlabyrinth.phaed.simpleclans.ChatBlock;
+import net.sacredlabyrinth.phaed.simpleclans.Clan;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.RankPermission;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
@@ -8,6 +10,7 @@ import net.sacredlabyrinth.phaed.simpleclans.managers.PermissionsManager;
 import net.sacredlabyrinth.phaed.simpleclans.ui.frames.ConfirmationFrame;
 import net.sacredlabyrinth.phaed.simpleclans.ui.frames.WarningFrame;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -174,14 +178,43 @@ public class InventoryController implements Listener {
 	 * </p>
 	 */
 	public static void runSubcommand(@NotNull Player player, @NotNull String subcommand, boolean update, String... args) {
+		runClanSubcommand(player, null, subcommand, update, args);
+	}
+
+	public static void runClanSubcommand(@NotNull Player player, @Nullable Clan clan, @NotNull String subcommand,
+										 boolean update, String... args) {
+		runSubcommand(player, clan, null, subcommand, update, args);
+	}
+
+	public static void runMemberSubcommand(Player player, Clan clan, UUID member, String subcommand,
+										   String... args) {
+		runSubcommand(player, clan, member, subcommand, true, args);
+	}
+
+	private static void runSubcommand(Player player, @Nullable Clan clan, @Nullable UUID member, String subcommand,
+									  boolean update, String... args) {
 		SimpleClans plugin = SimpleClans.getInstance();
 		String baseCommand = plugin.getSettingsManager().getString(COMMANDS_CLAN);
-		String finalCommand = String.format("%s %s ", baseCommand, subcommand) + String.join(" ", args);
 		new BukkitRunnable() {
 
 			@Override
 			public void run() {
-				player.performCommand(finalCommand);
+				if (clan != null && plugin.getClanManager().getClanByPlayerUniqueId(player.getUniqueId()) != clan) {
+					ChatBlock.sendMessage(player, ChatColor.RED + lang("rank.hierarchy.clan.changed", player));
+					player.closeInventory();
+					return;
+				}
+				String arguments = String.join(" ", args);
+				if (member != null) {
+					ClanPlayer target = plugin.getClanManager().getClanPlayer(member);
+					if (target == null || target.getClan() != clan) {
+						ChatBlock.sendMessage(player, ChatColor.RED + lang("the.player.is.not.a.member.of.your.clan", player));
+						player.closeInventory();
+						return;
+					}
+					arguments = target.getName() + " " + arguments;
+				}
+				player.performCommand(baseCommand + " " + subcommand + " " + arguments);
 				if (!update) {
 					player.closeInventory();
 				} else {

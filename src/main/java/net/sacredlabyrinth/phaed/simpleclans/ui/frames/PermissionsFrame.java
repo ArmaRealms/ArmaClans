@@ -1,7 +1,9 @@
 package net.sacredlabyrinth.phaed.simpleclans.ui.frames;
 
 import com.cryptomorin.xseries.XMaterial;
+import net.sacredlabyrinth.phaed.simpleclans.Clan;
 import net.sacredlabyrinth.phaed.simpleclans.Rank;
+import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import net.sacredlabyrinth.phaed.simpleclans.ui.*;
 import net.sacredlabyrinth.phaed.simpleclans.utils.Paginator;
 import org.bukkit.entity.Player;
@@ -14,12 +16,18 @@ import static net.sacredlabyrinth.phaed.simpleclans.SimpleClans.lang;
 
 public class PermissionsFrame extends SCFrame {
 	private final Rank rank;
+	private final Clan clan;
 	private final Paginator paginator;
 	private final String[] permissions;
 
 	public PermissionsFrame(SCFrame parent, Player viewer, Rank rank) {
+		this(parent, viewer, SimpleClans.getInstance().getClanManager().getClanByPlayerUniqueId(viewer.getUniqueId()), rank);
+	}
+
+	public PermissionsFrame(SCFrame parent, Player viewer, Clan clan, Rank rank) {
 		super(parent, viewer);
 		this.rank = rank;
+		this.clan = clan;
 		permissions = rank.getPermissions().toArray(new String[0]);
 		paginator = new Paginator(getSize() - 9, permissions.length);
 	}
@@ -36,7 +44,7 @@ public class PermissionsFrame extends SCFrame {
 
 		SCComponent add = new SCComponentImpl(lang("gui.permissions.add.title",getViewer()), null, XMaterial.WHITE_WOOL,
 				4);
-		add.setListener(ClickType.LEFT, () -> InventoryDrawer.open(new AddPermissionFrame(this, getViewer(), rank)));
+		add.setListener(ClickType.LEFT, () -> InventoryDrawer.open(new AddPermissionFrame(this, getViewer(), clan, rank)));
 		add.setPermission(ClickType.LEFT, "simpleclans.leader.rank.permissions.add");
 		add(add);
 
@@ -50,7 +58,7 @@ public class PermissionsFrame extends SCFrame {
 
 			SCComponent c = new SCComponentImpl(lang("gui.permissions.permission.title",getViewer(), permission),
 					Collections.singletonList(lang("gui.permissions.permission.lore",getViewer())), XMaterial.PAPER, slot);
-			c.setListener(ClickType.RIGHT, () -> InventoryController.runSubcommand(getViewer(),
+			c.setListener(ClickType.RIGHT, () -> InventoryController.runClanSubcommand(getViewer(), clan,
 					"rank permissions remove", true, rank.getName(), permission));
 			c.setPermission(ClickType.RIGHT, "simpleclans.leader.rank.permissions.remove");
 			add(c);

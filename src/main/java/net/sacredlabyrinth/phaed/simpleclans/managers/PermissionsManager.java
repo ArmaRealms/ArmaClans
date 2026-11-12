@@ -337,6 +337,50 @@ public final class PermissionsManager {
         return hasPermission;
     }
 
+    public boolean canManageClanMember(Player player, ClanPlayer actor, Clan clan, ClanPlayer target,
+                                       RankPermission permission) {
+        ClanManager clans = plugin.getClanManager();
+        if (clans.getClanPlayer(player) != actor || actor.getClan() != clan
+                || clans.getClanPlayer(target.getUniqueId()) != target || target.getClan() != clan
+                || !clan.isMember(actor.getUniqueId()) || !clan.isMember(target.getUniqueId())) {
+            ChatBlock.sendMessage(player, ChatColor.RED + lang("the.player.is.not.a.member.of.your.clan", player));
+            return false;
+        }
+        if (!has(player, permission, true)) {
+            return false;
+        }
+        if (!clan.isAbove(actor, target)) {
+            String key = "rank.hierarchy.target.not.below";
+            if (permission == RankPermission.KICK) {
+                if (actor == target) {
+                    key = "you.cannot.kick.yourself";
+                } else if (target.isLeader()) {
+                    key = "you.cannot.kick.another.leader";
+                }
+            }
+            ChatBlock.sendMessage(player, ChatColor.RED + lang(key, player));
+            return false;
+        }
+        return true;
+    }
+
+    public boolean canEditClanRanks(Player player, Clan clan, String permission) {
+        ClanPlayer actor = plugin.getClanManager().getClanPlayer(player);
+        if (actor == null || actor.getClan() != clan || !clan.isMember(player.getUniqueId()) || !actor.isLeader()) {
+            ChatBlock.sendMessage(player, ChatColor.RED + lang("no.leader.permissions", player));
+            return false;
+        }
+        if (!clan.isVerified()) {
+            ChatBlock.sendMessage(player, ChatColor.RED + lang("clan.is.not.verified", player));
+            return false;
+        }
+        if (!has(player, permission)) {
+            ChatBlock.sendMessage(player, ChatColor.RED + lang("insufficient.permissions", player));
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Checks if the player has the rank permission or the permission level, and the equivalent Bukkit permission
      *
